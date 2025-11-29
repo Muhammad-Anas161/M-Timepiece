@@ -78,7 +78,7 @@ npm run dev
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 5. Add environment variable:
-   - `VITE_API_URL`: Your backend URL (e.g., `https://your-backend.railway.app`)
+   - `VITE_API_URL`: Your backend URL with `/api` suffix (e.g., `https://your-backend.railway.app/api`)
 6. Click **"Deploy"**
 
 #### Step 3: Get Frontend URL
@@ -199,7 +199,7 @@ curl https://your-backend.railway.app/api/products
 
 ### API Calls Fail
 **Problem**: Frontend API calls return errors
-**Solution**: Check `VITE_API_URL` in Vercel environment variables points to correct backend URL
+**Solution**: Check `VITE_API_URL` in Vercel environment variables points to correct backend URL and ends with `/api`
 
 ---
 
