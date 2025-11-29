@@ -1,10 +1,30 @@
 
 // Use environment variable for production, fallback to localhost for development
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+console.log('Current API URL:', API_URL);
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
+
+const handleResponse = async (response) => {
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'API request failed');
+    return data;
+  }
+  
+  // Not JSON (likely HTML error page)
+  const text = await response.text();
+  console.error('API Error - Expected JSON but got:', text.substring(0, 200));
+  console.error('Response Status:', response.status, response.statusText);
+  
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+  }
+  throw new Error('Invalid API response: Expected JSON but received HTML. Check your VITE_API_URL.');
 };
 
 export const login = async (username, password) => {
@@ -13,25 +33,21 @@ export const login = async (username, password) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   });
-  if (!response.ok) throw new Error('Login failed');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const getProducts = async (params = {}) => {
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${API_URL}/products?${query}`);
-  if (!response.ok) throw new Error('Failed to fetch products');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const getProductById = async (id) => {
   const response = await fetch(`${API_URL}/products/${id}`);
-  if (!response.ok) throw new Error('Product not found');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const addProduct = async (productData) => {
-  // productData can be JSON or FormData
   const headers = getHeaders();
   const isFormData = productData instanceof FormData;
   
@@ -44,8 +60,7 @@ export const addProduct = async (productData) => {
     headers: headers,
     body: isFormData ? productData : JSON.stringify(productData),
   });
-  if (!response.ok) throw new Error('Failed to add product');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const updateProduct = async (id, productData) => {
@@ -61,8 +76,7 @@ export const updateProduct = async (id, productData) => {
     headers: headers,
     body: isFormData ? productData : JSON.stringify(productData),
   });
-  if (!response.ok) throw new Error('Failed to update product');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const deleteProduct = async (id) => {
@@ -70,16 +84,14 @@ export const deleteProduct = async (id) => {
     method: 'DELETE',
     headers: getHeaders(),
   });
-  if (!response.ok) throw new Error('Failed to delete product');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const getOrders = async () => {
   const response = await fetch(`${API_URL}/orders`, {
     headers: getHeaders(),
   });
-  if (!response.ok) throw new Error('Failed to fetch orders');
-  return response.json();
+  return handleResponse(response);
 };
 
 export const createOrder = async (orderData) => {
@@ -88,6 +100,5 @@ export const createOrder = async (orderData) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(orderData),
   });
-  if (!response.ok) throw new Error('Failed to create order');
-  return response.json();
+  return handleResponse(response);
 };
