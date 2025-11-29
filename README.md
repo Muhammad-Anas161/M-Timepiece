@@ -1,4 +1,4 @@
-# Watch Junction ⌚
+# M Timepiece ⌚
 
 A modern e-commerce platform for luxury watches built with React and Express.
 

@@ -36,7 +36,7 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center justify-center md:justify-start w-full md:w-auto">
             <Link to="/" className="font-serif text-2xl font-bold tracking-wider text-gray-900">
-              WATCH JUNCTION
+              M TIMEPIECE
             </Link>
           </div>
 

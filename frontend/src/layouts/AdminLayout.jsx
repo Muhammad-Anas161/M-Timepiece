@@ -17,7 +17,7 @@ const AdminLayout = () => {
       <div className="hidden md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-200">
           <div className="flex items-center flex-shrink-0 px-4 mb-5">
-            <span className="font-serif text-xl font-bold text-gray-900">Watch Junction Admin</span>
+            <span className="font-serif text-xl font-bold text-gray-900">M Timepiece Admin</span>
           </div>
           <div className="mt-5 flex-grow flex flex-col">
             <nav className="flex-1 px-2 pb-4 space-y-1">

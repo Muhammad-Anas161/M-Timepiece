@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
-            <h3 className="font-serif text-2xl font-bold mb-6">WATCH JUNCTION</h3>
+            <h3 className="font-serif text-2xl font-bold mb-6">M TIMEPIECE</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               Crafting moments that last forever. Premium timepieces for those who value every second.
             </p>
@@ -50,7 +50,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-500 text-xs">© 2024 Watch Junction. All rights reserved.</p>
+          <p className="text-gray-500 text-xs">© 2024 M Timepiece. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/privacy" className="text-gray-500 hover:text-white text-xs transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="text-gray-500 hover:text-white text-xs transition-colors">Terms of Service</Link>

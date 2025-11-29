@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
         <div className="prose prose-indigo mx-auto text-gray-500 text-sm">
           <p>Last updated: November 2024</p>
           <p>
-            At Watch Junction, we respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
+            At M Timepiece, we respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
           </p>
           
           <h3 className="text-gray-900 mt-4">1. Information We Collect</h3>

@@ -9,7 +9,7 @@ const TermsOfService = () => {
         <div className="prose prose-indigo mx-auto text-gray-500 text-sm">
           <p>Last updated: November 2024</p>
           <p>
-            Please read these Terms of Service carefully before using the Watch Junction website operated by us.
+            Please read these Terms of Service carefully before using the M Timepiece website operated by us.
           </p>
           
           <h3 className="text-gray-900 mt-4">1. Conditions of Use</h3>
@@ -19,7 +19,7 @@ const TermsOfService = () => {
 
           <h3 className="text-gray-900 mt-4">2. Intellectual Property</h3>
           <p>
-            You agree that all materials, products, and services provided on this website are the property of Watch Junction, its affiliates, directors, officers, employees, agents, suppliers, or licensors including all copyrights, trade secrets, trademarks, patents, and other intellectual property.
+            You agree that all materials, products, and services provided on this website are the property of M Timepiece, its affiliates, directors, officers, employees, agents, suppliers, or licensors including all copyrights, trade secrets, trademarks, patents, and other intellectual property.
           </p>
         </div>
       </div>

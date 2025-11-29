@@ -83,7 +83,7 @@ function App() {
           } />
           <Route path="/about" element={
             <>
-              <SEO title="About Us" description="Learn about the craftsmanship behind Watch Junction watches." />
+              <SEO title="About Us" description="Learn about the craftsmanship behind M Timepiece watches." />
               <Navbar />
               <CartSidebar />
               <main>

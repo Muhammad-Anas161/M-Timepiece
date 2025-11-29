@@ -1,6 +1,6 @@
-# Watch Junction - Deployment Guide
+# M Timepiece - Deployment Guide
 
-This guide covers deploying the Watch Junction e-commerce application with separate frontend and backend deployments.
+This guide covers deploying the M Timepiece e-commerce application with separate frontend and backend deployments.
 
 ## 📁 Project Structure
 

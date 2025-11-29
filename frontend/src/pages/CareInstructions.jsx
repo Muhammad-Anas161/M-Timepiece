@@ -8,7 +8,7 @@ const CareInstructions = () => {
         
         <div className="prose prose-indigo mx-auto text-gray-500">
           <p>
-            A Watch Junction watch is a precision instrument designed to last a lifetime. Proper care and maintenance will ensure its longevity and performance.
+            A M Timepiece watch is a precision instrument designed to last a lifetime. Proper care and maintenance will ensure its longevity and performance.
           </p>
 
           <h3 className="text-gray-900 mt-6">Cleaning</h3>
