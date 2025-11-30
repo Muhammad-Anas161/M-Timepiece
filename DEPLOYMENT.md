@@ -201,6 +201,10 @@ curl https://your-backend.railway.app/api/products
 **Problem**: Frontend API calls return errors
 **Solution**: Check `VITE_API_URL` in Vercel environment variables points to correct backend URL and ends with `/api`
 
+### Deployment Fails: "No start command was found"
+**Problem**: Railway fails to build/deploy
+**Solution**: Go to Railway Project Settings -> General -> Root Directory and set it to `/backend`
+
 ---
 
 ## 📚 Additional Resources
