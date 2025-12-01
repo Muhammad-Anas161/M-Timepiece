@@ -12,6 +12,7 @@ dotenv.config();
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
+import newsletterRoutes from './routes/newsletter.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +39,7 @@ app.use('/uploads', express.static(uploadsDir));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
