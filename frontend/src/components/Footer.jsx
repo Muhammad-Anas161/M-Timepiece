@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
-            <h3 className="font-serif text-2xl font-bold mb-6">M TIMEPIECE</h3>
+            <img src="/logo-white.png" alt="M Timepiece" className="h-16 w-auto mb-6" />
             <p className="text-gray-400 text-sm leading-relaxed">
               Crafting moments that last forever. Premium timepieces for those who value every second.
             </p>
