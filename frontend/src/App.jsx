@@ -13,6 +13,7 @@ import SEO from './components/SEO';
 import TrustBadges from './components/TrustBadges';
 
 // Lazy load pages
+const Home = lazy(() => import('./pages/Home'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -45,21 +46,7 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={
-            <>
-              <SEO title="Home" />
-              <Navbar />
-              <CartSidebar />
-              <main>
-                <Hero />
-                <TrustBadges />
-                <NewArrivals />
-                <FeaturedCollection />
-                <BestSellers />
-              </main>
-              <Footer />
-            </>
-          } />
+          <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={
             <>
               <Navbar />
