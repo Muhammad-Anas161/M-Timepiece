@@ -253,7 +253,7 @@ const ProductDetails = () => {
           <ProductReviews productId={id} />
 
           {/* Related Products */}
-          <RelatedProducts productId={id} />
+          <RelatedProducts productId={id} category={product.category} currentPrice={product.price} />
         </div>
       </div>
 

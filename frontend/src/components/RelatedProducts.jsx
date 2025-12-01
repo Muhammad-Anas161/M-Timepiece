@@ -1,65 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { getProducts } from '../services/api';
 import usePrice from '../hooks/usePrice';
+import { ShoppingCart } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
-const RelatedProducts = ({ productId }) => {
+const RelatedProducts = ({ productId, category, currentPrice }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
   const { formatPrice } = usePrice();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchRelated = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/products/${productId}/related`);
-        const data = await response.json();
-        setProducts(data);
+        // Fetch products from same category
+        const data = await getProducts({ category });
+        
+        // Filter out current product and get similar price range
+        const priceRange = currentPrice * 0.3; // 30% price range
+        const related = data
+          .filter(p => 
+            p.id !== parseInt(productId) && 
+            Math.abs(p.price - currentPrice) <= priceRange
+          )
+          .slice(0, 4); // Show max 4 products
+        
+        setProducts(related);
       } catch (error) {
-        console.error('Error fetching related products:', error);
+        console.error('Failed to fetch related products:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRelated();
-  }, [productId]);
+    if (category && currentPrice) {
+      fetchRelated();
+    }
+  }, [productId, category, currentPrice]);
 
-  if (loading || products.length === 0) {
+  if (loading) {
+    return null;
+  }
+
+  if (products.length === 0) {
     return null;
   }
 
   return (
-    <div className="mt-16 border-t border-gray-200 pt-10">
+    <div className="mt-16">
       <h2 className="text-2xl font-bold text-gray-900 mb-8">You May Also Like</h2>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => (
           <div key={product.id} className="group">
-            <div className="relative overflow-hidden bg-white aspect-[3/4] mb-4 rounded-lg shadow-sm">
-              <Link to={`/product/${product.id}`}>
+            <Link to={`/product/${product.id}`} className="block">
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3 relative">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-              </Link>
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none"></div>
-              <button
-                onClick={() => addToCart(product)}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white text-gray-900 px-4 py-2 text-xs font-medium opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg cursor-pointer whitespace-nowrap"
-              >
-                ADD TO CART
-              </button>
-            </div>
-            <div className="text-center">
-              <Link to={`/product/${product.id}`}>
-                <h3 className="text-sm font-medium text-gray-900 mb-1 hover:text-gray-600 transition-colors">
-                  {product.name}
-                </h3>
-              </Link>
-              <p className="text-sm text-gray-500">{formatPrice(product.price)}</p>
-            </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToCart(product);
+                  }}
+                  className="absolute bottom-2 right-2 p-2 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100"
+                >
+                  <ShoppingCart size={18} />
+                </button>
+              </div>
+              <h3 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
+                {product.name}
+              </h3>
+              <p className="text-sm text-gray-500 mb-1">{product.category}</p>
+              <p className="font-bold text-gray-900">{formatPrice(product.price)}</p>
+            </Link>
           </div>
         ))}
       </div>
