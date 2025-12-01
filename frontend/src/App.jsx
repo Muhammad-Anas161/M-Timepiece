@@ -30,6 +30,13 @@ const Contact = lazy(() => import('./pages/Contact'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 
+// User Pages
+const UserLayout = lazy(() => import('./layouts/UserLayout'));
+const UserDashboard = lazy(() => import('./pages/user/Dashboard'));
+const Orders = lazy(() => import('./pages/user/Orders'));
+const Profile = lazy(() => import('./pages/user/Profile'));
+const Wishlist = lazy(() => import('./pages/user/Wishlist'));
+
 // Loading Fallback
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -96,6 +103,14 @@ function App() {
               <Footer />
             </>
           } />
+
+          {/* User Routes */}
+          <Route path="/user" element={<UserLayout />}>
+            <Route index element={<UserDashboard />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="wishlist" element={<Wishlist />} />
+          </Route>
 
           {/* Admin Routes */}
           <Route element={<ProtectedRoute />}>
