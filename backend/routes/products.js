@@ -67,7 +67,13 @@ router.post('/', upload.single('image'), [
   }
 
   const { name, price, description, category } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : '';
+  // Use full URL for uploaded images, keep external URLs as-is
+  let image = '';
+  if (req.file) {
+    const protocol = req.protocol;
+    const host = req.get('host');
+    image = `${protocol}://${host}/uploads/${req.file.filename}`;
+  }
 
   db.run('INSERT INTO products (name, price, description, image, category) VALUES (?, ?, ?, ?, ?)', 
     [name, price, description, image, category], 
@@ -91,7 +97,13 @@ router.put('/:id', upload.single('image'), [
   }
 
   const { name, price, description, category } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : undefined;
+  // Use full URL for uploaded images
+  let image = undefined;
+  if (req.file) {
+    const protocol = req.protocol;
+    const host = req.get('host');
+    image = `${protocol}://${host}/uploads/${req.file.filename}`;
+  }
 
   let query = 'UPDATE products SET name = COALESCE(?, name), price = COALESCE(?, price), description = COALESCE(?, description), category = COALESCE(?, category)';
   const params = [name, price, description, category];
