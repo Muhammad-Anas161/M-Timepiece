@@ -4,12 +4,14 @@ import { createOrder } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Mail, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import CouponInput from '../components/CouponInput';
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,6 +23,10 @@ const Checkout = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const finalTotal = appliedCoupon 
+    ? cartTotal - appliedCoupon.discount_amount 
+    : cartTotal;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +46,8 @@ const Checkout = () => {
           zip: formData.zip,
         },
         items: cartItems,
-        total: cartTotal,
+        total: finalTotal,
+        coupon: appliedCoupon?.code,
       });
       
       clearCart();
@@ -127,9 +134,15 @@ const Checkout = () => {
                   <dt className="text-sm">Subtotal</dt>
                   <dd className="text-sm font-medium text-gray-900">${cartTotal.toFixed(2)}</dd>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex items-center justify-between text-green-600">
+                    <dt className="text-sm">Discount ({appliedCoupon.code})</dt>
+                    <dd className="text-sm font-medium">-${appliedCoupon.discount_amount.toFixed(2)}</dd>
+                  </div>
+                )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total</dt>
-                  <dd className="text-base font-medium text-gray-900">${cartTotal.toFixed(2)}</dd>
+                  <dd className="text-base font-medium text-gray-900">${finalTotal.toFixed(2)}</dd>
                 </div>
               </dl>
             </div>
@@ -257,6 +270,14 @@ const Checkout = () => {
                         </label>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Coupon Input */}
+                  <div className="mt-6">
+                    <CouponInput 
+                      orderTotal={cartTotal} 
+                      onCouponApplied={setAppliedCoupon}
+                    />
                   </div>
 
                 </div>

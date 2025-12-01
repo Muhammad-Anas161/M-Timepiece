@@ -20,6 +20,7 @@ const Analytics = lazy(() => import('./pages/admin/Analytics'));
 const ProductList = lazy(() => import('./pages/admin/ProductList'));
 const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
 const OrderList = lazy(() => import('./pages/admin/OrderList'));
+const CouponManagement = lazy(() => import('./pages/admin/CouponManagement'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Shop = lazy(() => import('./pages/Shop'));
 const About = lazy(() => import('./pages/About'));
@@ -134,6 +135,7 @@ function App() {
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="orders" element={<OrderList />} />
+              <Route path="coupons" element={<CouponManagement />} />
             </Route>
           </Route>
         </Routes>
