@@ -44,14 +44,14 @@ const InstagramFeed = () => {
             <Instagram size={32} />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Follow Us on Instagram</h2>
-          <p className="text-gray-500 mt-2">@MTimepiece.Official</p>
+          <p className="text-gray-500 mt-2">@m_timepiece1</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           {posts.map((post) => (
             <motion.a
               key={post.id}
-              href={post.link}
+              href="https://www.instagram.com/m_timepiece1/"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02 }}
@@ -71,7 +71,9 @@ const InstagramFeed = () => {
 
         <div className="text-center mt-10">
           <a 
-            href="#" 
+            href="https://www.instagram.com/m_timepiece1/" 
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 rounded-full font-bold hover:bg-gray-900 hover:text-white transition-all"
           >
             <Instagram size={20} />
