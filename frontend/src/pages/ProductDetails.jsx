@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, Truck, Shield, Clock } from 'lucide-react';
+import { ArrowLeft, Star, Truck, Shield, Clock, ZoomIn, Package } from 'lucide-react';
 import { getProductById } from '../services/api';
 import { useCart } from '../context/CartContext';
 import ProductReviews from '../components/ProductReviews';
@@ -12,6 +12,8 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { formatPrice } = usePrice();
 
@@ -51,6 +53,12 @@ const ProductDetails = () => {
     );
   }
 
+  const handleAddToCart = () => {
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product);
+    }
+  };
+
   return (
     <div className="bg-white">
       <div className="pt-24 pb-16 sm:pb-24">
@@ -67,9 +75,15 @@ const ProductDetails = () => {
               </div>
             </li>
             <li className="text-sm">
-              <a href="#" aria-current="page" className="font-medium text-gray-500 hover:text-gray-600">
-                {product.name}
-              </a>
+              <Link to="/shop" className="mr-4 text-sm font-medium text-gray-500 hover:text-gray-600">
+                Shop
+              </Link>
+              <svg viewBox="0 0 6 20" aria-hidden="true" className="h-5 w-auto text-gray-300 inline">
+                <path d="M4.878 4.34H3.551L.27 16.532h1.327l3.281-12.19z" fill="currentColor" />
+              </svg>
+            </li>
+            <li className="text-sm">
+              <span className="font-medium text-gray-500">{product.name}</span>
             </li>
           </ol>
         </nav>
@@ -77,16 +91,29 @@ const ProductDetails = () => {
         <div className="mx-auto mt-8 max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
           <div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
             <div className="lg:col-span-5 lg:col-start-8">
-              <div className="flex justify-between">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900">{product.name}</h1>
-                <p className="text-3xl tracking-tight text-gray-900">{formatPrice(product.price)}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm text-gray-500 uppercase tracking-wide">{product.category}</p>
+                  <h1 className="text-3xl font-bold tracking-tight text-gray-900 mt-1">{product.name}</h1>
+                </div>
+              </div>
+              
+              <div className="mt-4 flex items-center gap-4">
+                <p className="text-3xl font-bold text-gray-900">{formatPrice(product.price)}</p>
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
+                  ))}
+                  <span className="text-sm text-gray-500 ml-2">(4.5)</span>
+                </div>
               </div>
 
               {/* Stock Indicator */}
               {product.stock_quantity !== undefined && (
-                <div className="mt-2">
+                <div className="mt-4">
                   {product.stock_quantity > 0 ? (
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-green-600 flex items-center gap-2">
+                      <Package size={16} />
                       {product.stock_quantity < 5 ? `Only ${product.stock_quantity} left in stock!` : 'In Stock'}
                     </p>
                   ) : (
@@ -96,24 +123,50 @@ const ProductDetails = () => {
               )}
             </div>
 
-            {/* Image Gallery */}
+            {/* Image Gallery with Zoom */}
             <div className="mt-8 lg:col-span-7 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0">
               <h2 className="sr-only">Images</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
+              <div className="relative group">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="rounded-lg lg:col-span-2 lg:row-span-3 w-full h-full object-cover"
+                  className="rounded-lg w-full h-full object-cover cursor-zoom-in transition-transform duration-300"
+                  onClick={() => setIsZoomed(true)}
                 />
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ZoomIn size={20} className="text-gray-700" />
+                </div>
               </div>
             </div>
 
             <div className="mt-8 lg:col-span-5">
               <form>
+                {/* Quantity Selector */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      -
+                    </button>
+                    <span className="text-lg font-medium w-12 text-center">{quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => addToCart(product)}
-                  className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  onClick={handleAddToCart}
+                  className="flex w-full items-center justify-center rounded-md border border-transparent bg-gray-900 px-8 py-3 text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
                   Add to cart
                 </button>
@@ -127,16 +180,48 @@ const ProductDetails = () => {
                 </div>
               </div>
 
+              {/* Specifications Table */}
               <div className="mt-8 border-t border-gray-200 pt-8">
-                <h2 className="text-sm font-medium text-gray-900">Features</h2>
-                <div className="prose prose-sm mt-4 text-gray-500">
-                  <ul role="list">
-                    {(Array.isArray(product.features) ? product.features : product.features.split('\n')).map((feature) => (
-                      <li key={feature}>{feature.trim()}</li>
-                    ))}
-                  </ul>
+                <h2 className="text-sm font-medium text-gray-900 mb-4">Specifications</h2>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <dl className="divide-y divide-gray-200">
+                    <div className="py-3 flex justify-between">
+                      <dt className="text-sm text-gray-500">Brand</dt>
+                      <dd className="text-sm font-medium text-gray-900">{product.brand || 'M Timepiece'}</dd>
+                    </div>
+                    <div className="py-3 flex justify-between">
+                      <dt className="text-sm text-gray-500">Category</dt>
+                      <dd className="text-sm font-medium text-gray-900">{product.category}</dd>
+                    </div>
+                    <div className="py-3 flex justify-between">
+                      <dt className="text-sm text-gray-500">Material</dt>
+                      <dd className="text-sm font-medium text-gray-900">{product.material || 'Stainless Steel'}</dd>
+                    </div>
+                    <div className="py-3 flex justify-between">
+                      <dt className="text-sm text-gray-500">Water Resistance</dt>
+                      <dd className="text-sm font-medium text-gray-900">{product.waterResistance || '3 ATM'}</dd>
+                    </div>
+                    <div className="py-3 flex justify-between">
+                      <dt className="text-sm text-gray-500">Movement</dt>
+                      <dd className="text-sm font-medium text-gray-900">{product.movement || 'Quartz'}</dd>
+                    </div>
+                  </dl>
                 </div>
               </div>
+
+              {/* Features */}
+              {product.features && (
+                <div className="mt-8 border-t border-gray-200 pt-8">
+                  <h2 className="text-sm font-medium text-gray-900">Features</h2>
+                  <div className="prose prose-sm mt-4 text-gray-500">
+                    <ul role="list">
+                      {(Array.isArray(product.features) ? product.features : product.features.split('\n')).map((feature, idx) => (
+                        <li key={idx}>{feature.trim()}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
 
               {/* Policies */}
               <section aria-labelledby="policies-heading" className="mt-10">
@@ -171,6 +256,28 @@ const ProductDetails = () => {
           <RelatedProducts productId={id} />
         </div>
       </div>
+
+      {/* Image Zoom Modal */}
+      {isZoomed && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setIsZoomed(false)}
+        >
+          <img
+            src={product.image}
+            alt={product.name}
+            className="max-w-full max-h-full object-contain"
+          />
+          <button
+            onClick={() => setIsZoomed(false)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

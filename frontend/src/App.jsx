@@ -36,6 +36,7 @@ const UserDashboard = lazy(() => import('./pages/user/Dashboard'));
 const Orders = lazy(() => import('./pages/user/Orders'));
 const Profile = lazy(() => import('./pages/user/Profile'));
 const Wishlist = lazy(() => import('./pages/user/Wishlist'));
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
 
 // Loading Fallback
 const PageLoader = () => (
@@ -45,11 +46,13 @@ const PageLoader = () => (
 );
 
 import { Toaster } from 'react-hot-toast';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   return (
     <div className="min-h-screen bg-white">
       <Toaster position="top-center" />
+      <WhatsAppButton />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Routes */}
@@ -99,6 +102,17 @@ function App() {
               <Navbar />
               <main>
                 <Checkout />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/track-order" element={
+            <>
+              <SEO title="Track Order" />
+              <Navbar />
+              <CartSidebar />
+              <main>
+                <OrderTracking />
               </main>
               <Footer />
             </>
