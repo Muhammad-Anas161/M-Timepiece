@@ -14,6 +14,7 @@ import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
 import newsletterRoutes from './routes/newsletter.js';
 import reviewsRoutes from './routes/reviews.js';
+import analyticsRoutes from './routes/analytics.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,6 +43,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

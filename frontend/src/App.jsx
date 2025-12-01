@@ -16,7 +16,7 @@ import TrustBadges from './components/TrustBadges';
 const Home = lazy(() => import('./pages/Home'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
-const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const Analytics = lazy(() => import('./pages/admin/Analytics'));
 const ProductList = lazy(() => import('./pages/admin/ProductList'));
 const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
 const OrderList = lazy(() => import('./pages/admin/OrderList'));
@@ -129,7 +129,7 @@ function App() {
           {/* Admin Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Dashboard />} />
+              <Route index element={<Analytics />} />
               <Route path="products" element={<ProductList />} />
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
