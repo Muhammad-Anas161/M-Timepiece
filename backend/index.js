@@ -16,6 +16,7 @@ import newsletterRoutes from './routes/newsletter.js';
 import reviewsRoutes from './routes/reviews.js';
 import analyticsRoutes from './routes/analytics.js';
 import couponsRoutes from './routes/coupons.js';
+import loyaltyRoutes from './routes/loyalty.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +47,7 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/coupons', couponsRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

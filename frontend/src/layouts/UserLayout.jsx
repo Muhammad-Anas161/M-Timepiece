@@ -8,7 +8,8 @@ import {
   User, 
   LogOut, 
   Menu, 
-  X 
+  X,
+  Award
 } from 'lucide-react';
 
 const UserLayout = () => {
@@ -32,6 +33,7 @@ const UserLayout = () => {
     { name: 'Dashboard', href: '/user', icon: LayoutDashboard },
     { name: 'My Orders', href: '/user/orders', icon: ShoppingBag },
     { name: 'Wishlist', href: '/user/wishlist', icon: Heart },
+    { name: 'Loyalty Points', href: '/user/loyalty', icon: Award },
     { name: 'Profile', href: '/user/profile', icon: User },
   ];
 

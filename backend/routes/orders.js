@@ -44,6 +44,29 @@ router.post('/', (req, res) => {
           db.run("ROLLBACK");
           return res.status(500).json({ error: err.message });
         }
+
+        // Award Loyalty Points
+        const pointsEarned = Math.floor(total / 10); // 1 point per $10
+        if (pointsEarned > 0) {
+          db.run(
+            "UPDATE users SET loyalty_points = loyalty_points + ? WHERE email = ?",
+            [pointsEarned, customer.email],
+            function(err) {
+              if (!err && this.changes > 0) {
+                // User found and points updated, log history
+                // We need to get user ID first, but we can't easily in this flow without another query.
+                // For simplicity/performance in this callback hell, we might skip history or do a subquery.
+                // SQLite supports subquery in INSERT.
+                db.run(
+                  `INSERT INTO loyalty_history (user_id, points, type, description) 
+                   SELECT id, ?, 'earned', ? FROM users WHERE email = ?`,
+                  [pointsEarned, `Earned from Order #${orderId}`, customer.email]
+                );
+              }
+            }
+          );
+        }
+
         db.run("COMMIT");
         res.json({ id: orderId, message: 'Order created successfully' });
       });

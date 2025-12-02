@@ -37,7 +37,9 @@ const UserDashboard = lazy(() => import('./pages/user/Dashboard'));
 const Orders = lazy(() => import('./pages/user/Orders'));
 const Profile = lazy(() => import('./pages/user/Profile'));
 const Wishlist = lazy(() => import('./pages/user/Wishlist'));
+const LoyaltyPoints = lazy(() => import('./pages/user/LoyaltyPoints'));
 const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const Register = lazy(() => import('./pages/Register'));
 
 // Loading Fallback
 const PageLoader = () => (
@@ -124,7 +126,10 @@ function App() {
             <Route index element={<UserDashboard />} />
             <Route path="orders" element={<Orders />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="wishlist" element={<Wishlist />} />
+            <Route path="loyalty" element={<LoyaltyPoints />} />
           </Route>
 
           {/* Admin Routes */}
