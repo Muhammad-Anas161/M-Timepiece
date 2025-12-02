@@ -8,7 +8,7 @@ router.get('/stats', (req, res) => {
   const stats = {};
 
   // Total Revenue
-  db.get('SELECT SUM(total_amount) as total FROM orders', [], (err, row) => {
+  db.get('SELECT SUM(total) as total FROM orders', [], (err, row) => {
     if (err) return res.status(500).json({ message: 'Error fetching revenue' });
     stats.revenue = row.total || 0;
 
@@ -23,7 +23,7 @@ router.get('/stats', (req, res) => {
         stats.products = row.count;
 
         // Total Customers (Unique emails in orders)
-        db.get('SELECT COUNT(DISTINCT email) as count FROM orders', [], (err, row) => {
+        db.get('SELECT COUNT(DISTINCT customer_email) as count FROM orders', [], (err, row) => {
           if (err) return res.status(500).json({ message: 'Error fetching customers' });
           stats.customers = row.count;
 
@@ -37,7 +37,7 @@ router.get('/stats', (req, res) => {
 // Get sales chart data (Last 7 days)
 router.get('/sales', (req, res) => {
   const query = `
-    SELECT date(created_at) as date, SUM(total_amount) as amount, COUNT(*) as orders
+    SELECT date(created_at) as date, SUM(total) as amount, COUNT(*) as orders
     FROM orders
     WHERE created_at >= date('now', '-7 days')
     GROUP BY date(created_at)
@@ -45,7 +45,10 @@ router.get('/sales', (req, res) => {
   `;
 
   db.all(query, [], (err, rows) => {
-    if (err) return res.status(500).json({ message: 'Error fetching sales data' });
+    if (err) {
+      console.error('Sales Analytics Error:', err);
+      return res.status(500).json({ message: 'Error fetching sales data' });
+    }
     res.json(rows);
   });
 });

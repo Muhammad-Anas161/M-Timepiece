@@ -35,9 +35,9 @@ const Analytics = () => {
       const statusData = await statusRes.json();
 
       setStats(statsData);
-      setSalesData(salesData);
-      setTopProducts(productsData);
-      setStatusData(statusData);
+      setSalesData(Array.isArray(salesData) ? salesData : []);
+      setTopProducts(Array.isArray(productsData) ? productsData : []);
+      setStatusData(Array.isArray(statusData) ? statusData : []);
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {
