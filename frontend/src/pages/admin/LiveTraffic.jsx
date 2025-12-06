@@ -26,8 +26,8 @@ const LiveTraffic = () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/tracking/live`);
       const data = await res.json();
-      setVisits(data.visits);
-      setStats(data.stats);
+      setVisits(data.visits || []);
+      setStats(data.stats || { total_visits: 0, active_countries: 0, device_breakdown: {} });
     } catch (error) {
       console.error('Error fetching traffic:', error);
     } finally {
