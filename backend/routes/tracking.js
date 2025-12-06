@@ -12,8 +12,7 @@ const extractVisitorInfo = (req) => {
   const cleanIp = ip === '::1' ? '127.0.0.1' : ip.split(',')[0].trim();
   
   const geo = geoip.lookup(cleanIp);
-  const parser = new UAParser(req.headers['user-agent']);
-  const ua = parser.getResult();
+  const ua = UAParser(req.headers['user-agent']);
   
   return {
     ip: cleanIp,

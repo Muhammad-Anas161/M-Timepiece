@@ -4,6 +4,9 @@ import useCurrencyStore from '../store/currencyStore';
 const CurrencySwitcher = () => {
   const { currency, setCurrency } = useCurrencyStore();
 
+  // Detection is handled in App.jsx
+
+
   return (
     <div className="flex items-center gap-2">
       <button
