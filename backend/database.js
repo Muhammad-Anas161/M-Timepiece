@@ -6,7 +6,9 @@ import bcrypt from 'bcryptjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const dbPath = join(__dirname, 'database.sqlite');
+// Allow database path to be configured via environment variable (useful for volumes)
+// Default to local file if not specified
+const dbPath = process.env.DB_FILE_PATH || join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
