@@ -18,6 +18,7 @@ import analyticsRoutes from './routes/analytics.js';
 import couponsRoutes from './routes/coupons.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import trackingRoutes from './routes/tracking.js';
+import locationRoutes from './routes/location.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,6 +50,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/coupons', couponsRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/tracking', trackingRoutes);
+app.use('/api/location', locationRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

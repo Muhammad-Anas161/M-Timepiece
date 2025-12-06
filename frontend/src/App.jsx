@@ -54,8 +54,15 @@ import WhatsAppButton from './components/WhatsAppButton';
 
 import useVisitorTracker from './hooks/useVisitorTracker';
 
+import useCurrencyStore from './store/currencyStore';
+
 function App() {
   useVisitorTracker(); // Initialize tracking
+  const initCurrency = useCurrencyStore(state => state.initCurrency);
+
+  React.useEffect(() => {
+    initCurrency();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">

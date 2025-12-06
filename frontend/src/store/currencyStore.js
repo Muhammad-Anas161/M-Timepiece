@@ -1,61 +1,56 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const EXCHANGE_RATE = 278; // 1 USD = 278 PKR (approximate)
-
 const useCurrencyStore = create(
   persist(
     (set, get) => ({
-      currency: 'PKR', // Default to PKR
-      isDetecting: true,
-
-      // Detect user's country based on timezone or IP
-      detectCurrency: async () => {
+      currency: 'PKR',
+      symbol: 'Rs ',
+      rate: 1,
+      country: 'PK',
+      
+      setCurrency: (currency, symbol, rate) => set({ currency, symbol, rate }),
+      
+      initCurrency: async () => {
         try {
-          // Method 1: Check timezone
-          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          if (timezone.includes('Karachi') || timezone.includes('Pakistan')) {
-            set({ currency: 'PKR', isDetecting: false });
-            return;
-          }
-
-          // Method 2: Use a free IP geolocation API
-          const response = await fetch('https://ipapi.co/json/');
-          const data = await response.json();
+          // If already set and not default, maybe skip? 
+          // But user might travel. Let's fetch every time for now or depend on session.
+          // For now, let's fetch always on app start.
           
-          if (data.country_code === 'PK') {
-            set({ currency: 'PKR', isDetecting: false });
-          } else {
-            set({ currency: 'USD', isDetecting: false });
-          }
+          const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+          const res = await fetch(`${API_URL}/location`);
+          const data = await res.json();
+          
+          set({
+            currency: data.currency,
+            symbol: data.symbol,
+            rate: data.rate,
+            country: data.country
+          });
         } catch (error) {
-          console.error('Currency detection failed:', error);
-          // Default to PKR on error
-          set({ currency: 'PKR', isDetecting: false });
+          console.error('Error initializing currency:', error);
+          // Fallback to PKR default if error
+          set({ currency: 'PKR', symbol: 'Rs ', rate: 1, country: 'PK' });
         }
       },
 
-      // Manual currency toggle
-      setCurrency: (currency) => set({ currency }),
-
-      // Format price based on current currency
-      formatPrice: (usdPrice) => {
-        const { currency } = get();
+      formatPrice: (price) => {
+        const { currency, symbol, rate } = get();
+        if (!price) return `${symbol}0`;
+        
+        const convertedPrice = price * rate;
+        
+        // Formatting logic
         if (currency === 'PKR') {
-          const pkrPrice = usdPrice * EXCHANGE_RATE;
-          return `Rs ${pkrPrice.toLocaleString('en-PK')}`;
+          return `${symbol}${new Intl.NumberFormat('en-PK').format(Math.round(convertedPrice))}`;
+        } else {
+          return `${symbol}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(convertedPrice)}`;
         }
-        return `$${usdPrice.toFixed(2)}`;
-      },
-
-      // Get currency symbol
-      getCurrencySymbol: () => {
-        const { currency } = get();
-        return currency === 'PKR' ? 'Rs' : '$';
       }
     }),
     {
       name: 'currency-storage',
+      partialize: (state) => ({ currency: state.currency, symbol: state.symbol, rate: state.rate, country: state.country }), // Persist these fields
     }
   )
 );
