@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
+import usePrice from '../hooks/usePrice';
 
 const CartSidebar = () => {
   const { 
@@ -12,6 +13,7 @@ const CartSidebar = () => {
     updateQuantity, 
     cartTotal 
   } = useCart();
+  const { formatPrice } = usePrice();
 
   if (!isCartOpen) return null;
 
@@ -69,7 +71,7 @@ const CartSidebar = () => {
                                 <h3>
                                   <a href="#">{product.name}</a>
                                 </h3>
-                                <p className="ml-4">${(product.price * product.quantity).toFixed(2)}</p>
+                                <p className="ml-4">{formatPrice(product.price * product.quantity)}</p>
                               </div>
                               <p className="mt-1 text-sm text-gray-500">{product.features?.split('\n')[0]}</p>
                             </div>
@@ -109,10 +111,10 @@ const CartSidebar = () => {
 
             {cartItems.length > 0 && (
               <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
-                <div className="flex justify-between text-base font-medium text-gray-900">
-                  <p>Subtotal</p>
-                  <p>${cartTotal.toFixed(2)}</p>
-                </div>
+                  <div className="flex justify-between text-base font-medium text-gray-900">
+                   <p>Subtotal</p>
+                   <p>{formatPrice(cartTotal)}</p>
+                  </div>
                 <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
                 <div className="mt-6">
                   <Link

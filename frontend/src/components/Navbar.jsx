@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, ShoppingBag, Menu, X, User } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, User, Sun, Moon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import CurrencySwitcher from './CurrencySwitcher';
 
 const Navbar = () => {
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { cartCount, toggleCart } = useCart();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
@@ -47,6 +49,9 @@ const Navbar = () => {
             <Link to="/shop?category=Women" className="text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors">WOMEN</Link>
             <Link to="/about" className="text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors">ABOUT</Link>
             <CurrencySwitcher />
+            <button onClick={toggleTheme} className="text-gray-900 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </div>
 
           {/* Icons */}

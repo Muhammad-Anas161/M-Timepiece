@@ -74,6 +74,18 @@ router.post('/', (req, res) => {
         }
 
         db.run("COMMIT");
+        
+        // Async: Send to Google Sheets
+        import('../services/googleSheets.js').then(({ appendToSheet }) => {
+          appendToSheet({
+            id: orderId,
+            customer,
+            address,
+            items: items.map(i => ({...i, selectedColor: i.selectedColor})), // Ensure simple objects
+            total
+          });
+        }).catch(err => console.error('Failed to load Google Sheets service', err));
+
         res.json({ id: orderId, message: 'Order created successfully' });
       });
     });

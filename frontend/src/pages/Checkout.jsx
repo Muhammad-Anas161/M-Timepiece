@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import { CreditCard, Mail, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CouponInput from '../components/CouponInput';
+import usePrice from '../hooks/usePrice';
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
+  const { formatPrice } = usePrice();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
@@ -54,7 +56,7 @@ const Checkout = () => {
 
       // Handle different payment methods
       if (paymentMethod === 'WhatsApp') {
-        const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: $${cartTotal.toFixed(2)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
+        const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: ${formatPrice(cartTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
         const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
         window.location.href = whatsappUrl;
         toast.success('Redirecting to WhatsApp...');
@@ -120,7 +122,7 @@ const Checkout = () => {
                         </div>
                       </div>
                       <div className="flex-1 pt-2 flex items-end justify-between">
-                        <p className="mt-1 text-sm font-medium text-gray-900">${product.price.toFixed(2)}</p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">{formatPrice(product.price)}</p>
                         <div className="ml-4">
                           <p className="text-sm text-gray-500">Qty {product.quantity}</p>
                         </div>
@@ -132,17 +134,17 @@ const Checkout = () => {
               <dl className="border-t border-gray-200 py-6 px-4 space-y-6 sm:px-6">
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Subtotal</dt>
-                  <dd className="text-sm font-medium text-gray-900">${cartTotal.toFixed(2)}</dd>
+                  <dd className="text-sm font-medium text-gray-900">{formatPrice(cartTotal)}</dd>
                 </div>
                 {appliedCoupon && (
                   <div className="flex items-center justify-between text-green-600">
                     <dt className="text-sm">Discount ({appliedCoupon.code})</dt>
-                    <dd className="text-sm font-medium">-${appliedCoupon.discount_amount.toFixed(2)}</dd>
+                    <dd className="text-sm font-medium">-{formatPrice(appliedCoupon.discount_amount)}</dd>
                   </div>
                 )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total</dt>
-                  <dd className="text-base font-medium text-gray-900">${finalTotal.toFixed(2)}</dd>
+                  <dd className="text-base font-medium text-gray-900">{formatPrice(finalTotal)}</dd>
                 </div>
               </dl>
             </div>
