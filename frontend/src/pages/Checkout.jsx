@@ -54,6 +54,7 @@ const Checkout = () => {
       
       clearCart();
 
+      /*
       // Handle different payment methods
       if (paymentMethod === 'WhatsApp') {
         const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: ${formatPrice(cartTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
@@ -61,7 +62,11 @@ const Checkout = () => {
         window.location.href = whatsappUrl;
         toast.success('Redirecting to WhatsApp...');
       } else if (paymentMethod === 'Bank Transfer') {
-        toast.success(`Order Placed! Check email for transfer details.`);
+      */
+     
+      // Unified Success Handler
+      if (paymentMethod === 'WhatsApp' || paymentMethod === 'Bank Transfer') {
+        toast.success(`Order Placed! Check email for details.`);
         navigate('/');
       } else {
         toast.success('Order placed successfully!');

@@ -81,10 +81,15 @@ router.post('/', (req, res) => {
             id: orderId,
             customer,
             address,
-            items: items.map(i => ({...i, selectedColor: i.selectedColor})), // Ensure simple objects
+            items: items.map(i => ({...i, selectedColor: i.selectedColor})), 
             total
           });
         }).catch(err => console.error('Failed to load Google Sheets service', err));
+
+        // Async: Send Email Notification to Admin
+        import('../services/email.js').then(({ sendOrderEmail }) => {
+            sendOrderEmail({ id: orderId, total }, customer, items);
+        }).catch(err => console.error('Failed to load Email service', err));
 
         res.json({ id: orderId, message: 'Order created successfully' });
       });
