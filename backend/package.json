@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "start": "node index.js",
+        "start": "node migrate.js && node migrate_tracking.js && node migrate_loyalty.js && node index.js",
         "dev": "node index.js",
         "migrate": "node migrate.js",
         "seed": "node seed-products.js && node seed-reviews.js",

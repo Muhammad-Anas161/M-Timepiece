@@ -19,6 +19,11 @@ const useCurrencyStore = create(
           
           const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
           const res = await fetch(`${API_URL}/location`);
+          
+          if (!res.ok) {
+            throw new Error(`Location API error: ${res.status}`);
+          }
+          
           const data = await res.json();
           
           set({
