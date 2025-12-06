@@ -52,6 +52,7 @@ const ProductDetails = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+         {error && <p className="text-red-500 mb-4">{error}</p>}
         <Link to="/" className="text-indigo-600 hover:text-indigo-500 flex items-center">
           <ArrowLeft className="mr-2 h-5 w-5" />
           Back to Home
@@ -182,10 +183,11 @@ const ProductDetails = () => {
               <h2 className="sr-only">Images</h2>
               <div className="relative group aspect-square lg:aspect-auto lg:h-[600px] bg-gray-100 rounded-lg overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.image || 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80'}
                   alt={product.name}
                   className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300"
                   onClick={() => setIsZoomed(true)}
+                  onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80'; }}
                 />
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <ZoomIn size={20} className="text-gray-700" />

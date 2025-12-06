@@ -52,8 +52,13 @@ router.get('/:id', (req, res) => {
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
     db.all('SELECT * FROM product_variants WHERE product_id = ?', [req.params.id], (err, variants) => {
-      if (err) return res.status(500).json({ error: err.message });
-      product.variants = variants;
+      // If error (e.g. table missing), log it but return product without variants
+      if (err) {
+        console.error('Failed to fetch variants:', err.message);
+        product.variants = [];
+      } else {
+        product.variants = variants;
+      }
       res.json(product);
     });
   });
