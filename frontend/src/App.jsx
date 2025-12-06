@@ -21,6 +21,7 @@ const ProductList = lazy(() => import('./pages/admin/ProductList'));
 const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
 const OrderList = lazy(() => import('./pages/admin/OrderList'));
 const CouponManagement = lazy(() => import('./pages/admin/CouponManagement'));
+const LiveTraffic = lazy(() => import('./pages/admin/LiveTraffic'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Shop = lazy(() => import('./pages/Shop'));
 const About = lazy(() => import('./pages/About'));
@@ -51,7 +52,11 @@ const PageLoader = () => (
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from './components/WhatsAppButton';
 
+import useVisitorTracker from './hooks/useVisitorTracker';
+
 function App() {
+  useVisitorTracker(); // Initialize tracking
+
   return (
     <div className="min-h-screen bg-white">
       <Toaster position="top-center" />
@@ -126,8 +131,6 @@ function App() {
             <Route index element={<UserDashboard />} />
             <Route path="orders" element={<Orders />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="profile" element={<Profile />} />
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="loyalty" element={<LoyaltyPoints />} />
           </Route>
@@ -141,6 +144,7 @@ function App() {
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="orders" element={<OrderList />} />
               <Route path="coupons" element={<CouponManagement />} />
+              <Route path="traffic" element={<LiveTraffic />} />
             </Route>
           </Route>
         </Routes>
