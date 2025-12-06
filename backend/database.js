@@ -16,7 +16,9 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE,
-    password TEXT
+    email TEXT UNIQUE,
+    password TEXT,
+    loyalty_points INTEGER DEFAULT 0
   )`);
 
   // Products Table
@@ -28,6 +30,17 @@ db.serialize(() => {
     description TEXT,
     features TEXT,
     category TEXT DEFAULT 'Unisex'
+  )`);
+
+  // Product Variants Table
+  db.run(`CREATE TABLE IF NOT EXISTS product_variants (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    color TEXT,
+    color_code TEXT,
+    stock INTEGER DEFAULT 0,
+    price_modifier REAL DEFAULT 0,
+    FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
   )`);
 
   // Orders Table
@@ -51,7 +64,50 @@ db.serialize(() => {
     product_id INTEGER,
     quantity INTEGER,
     price REAL,
+    variant_id INTEGER,
+    variant_info TEXT,
     FOREIGN KEY(order_id) REFERENCES orders(id)
+  )`);
+
+  // Visitor Logs Table
+  db.run(`CREATE TABLE IF NOT EXISTS visitor_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip_address TEXT,
+    user_agent TEXT,
+    browser TEXT,
+    os TEXT,
+    device_type TEXT,
+    screen_resolution TEXT,
+    city TEXT,
+    country TEXT,
+    referrer TEXT,
+    page_url TEXT,
+    visit_time DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  // Reviews Table
+  db.run(`CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    user_name TEXT,
+    rating INTEGER,
+    comment TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(product_id) REFERENCES products(id)
+  )`);
+
+  // Coupons Table
+  db.run(`CREATE TABLE IF NOT EXISTS coupons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT UNIQUE,
+    discount_type TEXT,
+    discount_value REAL,
+    min_purchase REAL,
+    max_discount REAL,
+    usage_limit INTEGER,
+    used_count INTEGER DEFAULT 0,
+    valid_until DATETIME,
+    is_active INTEGER DEFAULT 1
   )`);
 
   // Seed Admin User
