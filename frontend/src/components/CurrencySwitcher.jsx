@@ -2,12 +2,7 @@ import React, { useEffect } from 'react';
 import useCurrencyStore from '../store/currencyStore';
 
 const CurrencySwitcher = () => {
-  const { currency, setCurrency, detectCurrency, isDetecting } = useCurrencyStore();
-
-  useEffect(() => {
-    // Auto-detect currency on mount
-    detectCurrency();
-  }, [detectCurrency]);
+  const { currency, setCurrency } = useCurrencyStore();
 
   return (
     <div className="flex items-center gap-2">

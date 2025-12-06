@@ -9,7 +9,13 @@ const useCurrencyStore = create(
       rate: 1,
       country: 'PK',
       
-      setCurrency: (currency, symbol, rate) => set({ currency, symbol, rate }),
+      setCurrency: (code) => {
+        if (code === 'PKR') {
+          set({ currency: 'PKR', symbol: 'Rs ', rate: 1, country: 'PK' });
+        } else {
+          set({ currency: 'USD', symbol: '$', rate: 0.0036, country: 'US' });
+        }
+      },
       
       initCurrency: async () => {
         try {
