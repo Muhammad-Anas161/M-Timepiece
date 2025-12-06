@@ -32,11 +32,17 @@ router.post('/', (req, res) => {
       }
       
       const orderId = this.lastID;
-      const sqlItem = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+      const sqlItem = "INSERT INTO order_items (order_id, product_id, quantity, price, variant_id, variant_info) VALUES (?, ?, ?, ?, ?, ?)";
       const stmt = db.prepare(sqlItem);
       
       items.forEach(item => {
-        stmt.run(orderId, item.id, item.quantity, item.price);
+        // item.variantId and item.color should be sent from frontend
+        stmt.run(orderId, item.id, item.quantity, item.price, item.variantId || null, item.selectedColor || null);
+        
+        // Deduct stock if variant
+        if (item.variantId) {
+          db.run("UPDATE product_variants SET stock = stock - ? WHERE id = ?", [item.quantity, item.variantId]);
+        }
       });
       
       stmt.finalize(err => {

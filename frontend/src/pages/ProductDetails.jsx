@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, Truck, Shield, Clock, ZoomIn, Package } from 'lucide-react';
+import { ArrowLeft, Star, Truck, Shield, Clock, ZoomIn, Package, Check } from 'lucide-react';
 import { getProductById } from '../services/api';
 import { useCart } from '../context/CartContext';
 import ProductReviews from '../components/ProductReviews';
@@ -14,6 +14,8 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  
   const { addToCart } = useCart();
   const { formatPrice } = usePrice();
 
@@ -23,6 +25,11 @@ const ProductDetails = () => {
         setLoading(true);
         const data = await getProductById(id);
         setProduct(data);
+        
+        // Auto-select first variant if available
+        if (data.variants && data.variants.length > 0) {
+          setSelectedVariant(data.variants[0]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -54,10 +61,29 @@ const ProductDetails = () => {
   }
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+    // If variants exist but none selected (shouldn't happen with auto-select, but safe guard)
+    if (product.variants && product.variants.length > 0 && !selectedVariant) {
+      alert('Please select a color');
+      return;
     }
+
+    // Check stock for variant
+    const currentStock = selectedVariant ? selectedVariant.stock : product.stock_quantity;
+    if (currentStock < quantity) {
+      alert(`Only ${currentStock} items available in stock`);
+      return;
+    }
+
+    addToCart(product, quantity, selectedVariant);
   };
+
+  // Calculate dynamic price
+  const currentPrice = selectedVariant 
+    ? product.price + (selectedVariant.price_modifier || 0)
+    : product.price;
+
+  // Determine stock to show
+  const displayStock = selectedVariant ? selectedVariant.stock : product.stock_quantity;
 
   return (
     <div className="bg-white">
@@ -99,7 +125,7 @@ const ProductDetails = () => {
               </div>
               
               <div className="mt-4 flex items-center gap-4">
-                <p className="text-3xl font-bold text-gray-900">{formatPrice(product.price)}</p>
+                <p className="text-3xl font-bold text-gray-900">{formatPrice(currentPrice)}</p>
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
@@ -109,31 +135,59 @@ const ProductDetails = () => {
               </div>
 
               {/* Stock Indicator */}
-              {product.stock_quantity !== undefined && (
-                <div className="mt-4">
-                  {product.stock_quantity > 0 ? (
-                    <p className="text-sm text-green-600 flex items-center gap-2">
-                      <Package size={16} />
-                      {product.stock_quantity < 5 ? `Only ${product.stock_quantity} left in stock!` : 'In Stock'}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-red-600">Out of Stock</p>
-                  )}
+              <div className="mt-4">
+                {displayStock > 0 ? (
+                  <p className="text-sm text-green-600 flex items-center gap-2">
+                    <Package size={16} />
+                    {displayStock < 5 ? `Only ${displayStock} left in stock!` : 'In Stock'}
+                  </p>
+                ) : (
+                  <p className="text-sm text-red-600 font-medium">Out of Stock</p>
+                )}
+              </div>
+
+              {/* Variants Selector */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-sm font-medium text-gray-900">Color</h3>
+                  <div className="flex items-center space-x-3 mt-2">
+                    {product.variants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`relative w-8 h-8 rounded-full focus:outline-none ring-2 ring-offset-2 ${
+                          selectedVariant && selectedVariant.id === variant.id ? 'ring-indigo-500' : 'ring-transparent border border-gray-200'
+                        }`}
+                        style={{ backgroundColor: variant.color_code || '#000' }}
+                        title={`${variant.color} ${variant.price_modifier ? `(${formatPrice(variant.price_modifier)} extra)` : ''}`}
+                      >
+                         {selectedVariant && selectedVariant.id === variant.id && (
+                           <span className="absolute inset-0 flex items-center justify-center text-white mix-blend-difference">
+                             <Check size={14} />
+                           </span>
+                         )}
+                      </button>
+                    ))}
+                    <span className="text-sm text-gray-500 ml-2">
+                      {selectedVariant ? selectedVariant.color : 'Select a color'}
+                    </span>
+                  </div>
                 </div>
               )}
+
             </div>
 
             {/* Image Gallery with Zoom */}
             <div className="mt-8 lg:col-span-7 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0">
               <h2 className="sr-only">Images</h2>
-              <div className="relative group">
+              <div className="relative group aspect-square lg:aspect-auto lg:h-[600px] bg-gray-100 rounded-lg overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="rounded-lg w-full h-full object-cover cursor-zoom-in transition-transform duration-300"
+                  className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300"
                   onClick={() => setIsZoomed(true)}
                 />
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <ZoomIn size={20} className="text-gray-700" />
                 </div>
               </div>
@@ -166,9 +220,14 @@ const ProductDetails = () => {
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="flex w-full items-center justify-center rounded-md border border-transparent bg-gray-900 px-8 py-3 text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                  disabled={displayStock === 0}
+                  className={`flex w-full items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                    displayStock > 0 
+                      ? 'bg-gray-900 hover:bg-gray-800 focus:ring-gray-500' 
+                      : 'bg-gray-400 cursor-not-allowed'
+                  }`}
                 >
-                  Add to cart
+                  {displayStock > 0 ? 'Add to cart' : 'Out of Stock'}
                 </button>
               </form>
 

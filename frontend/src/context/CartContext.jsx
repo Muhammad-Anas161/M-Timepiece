@@ -31,33 +31,49 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product, quantity = 1) => {
+  const addToCart = (product, quantity = 1, variant = null) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      // Create a unique key for comparison (id + variantId)
+      const variantId = variant ? variant.id : null;
+      
+      const existingItem = prevItems.find(item => 
+        item.id === product.id && item.variantId === variantId
+      );
+
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id
+          (item.id === product.id && item.variantId === variantId)
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prevItems, { ...product, quantity }];
+      
+      // Add new item with variant info
+      return [...prevItems, { 
+        ...product, 
+        quantity, 
+        variantId: variantId,
+        selectedColor: variant ? variant.color : null,
+        price: variant ? (product.price + variant.price_modifier) : product.price // Update price if modifier exists
+      }];
     });
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  const removeFromCart = (productId, variantId = null) => {
+    setCartItems(prevItems => prevItems.filter(item => 
+      !(item.id === productId && item.variantId === variantId)
+    ));
   };
 
-  const updateQuantity = (productId, newQuantity) => {
+  const updateQuantity = (productId, variantId, newQuantity) => {
     if (newQuantity < 1) {
-      removeFromCart(productId);
+      removeFromCart(productId, variantId);
       return;
     }
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === productId
+        (item.id === productId && item.variantId === variantId)
           ? { ...item, quantity: newQuantity }
           : item
       )

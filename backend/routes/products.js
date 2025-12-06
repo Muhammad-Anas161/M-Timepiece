@@ -45,21 +45,27 @@ router.get('/', (req, res) => {
   });
 });
 
-// Get single product
+// Get single product with variants
 router.get('/:id', (req, res) => {
-  db.get('SELECT * FROM products WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT * FROM products WHERE id = ?', [req.params.id], (err, product) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (!row) return res.status(404).json({ error: 'Product not found' });
-    res.json(row);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    db.all('SELECT * FROM product_variants WHERE product_id = ?', [req.params.id], (err, variants) => {
+      if (err) return res.status(500).json({ error: err.message });
+      product.variants = variants;
+      res.json(product);
+    });
   });
 });
 
-// Create product
+// Create product with variants
 router.post('/', upload.single('image'), [
   body('name').isString().notEmpty(),
   body('price').isFloat({ min: 0 }),
   body('description').isString(),
   body('category').isString().notEmpty()
+  // variants is passed as a JSON string field 'variants'
 ], (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -67,7 +73,13 @@ router.post('/', upload.single('image'), [
   }
 
   const { name, price, description, category } = req.body;
-  // Use full URL for uploaded images, keep external URLs as-is
+  let variants = [];
+  try {
+    variants = req.body.variants ? JSON.parse(req.body.variants) : [];
+  } catch (e) {
+    // Ignore parse error, empty variants
+  }
+
   let image = '';
   if (req.file) {
     const protocol = req.protocol;
@@ -79,12 +91,23 @@ router.post('/', upload.single('image'), [
     [name, price, description, image, category], 
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, name, price, description, image, category });
+      const productId = this.lastID;
+
+      // Insert variants if any
+      if (variants.length > 0) {
+        const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier) VALUES (?, ?, ?, ?, ?)');
+        variants.forEach(v => {
+          stmt.run(productId, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0);
+        });
+        stmt.finalize();
+      }
+
+      res.json({ id: productId, name, price, description, image, category, variants });
     }
   );
 });
 
-// Update product
+// Update product and variants
 router.put('/:id', upload.single('image'), [
   body('name').optional().isString().notEmpty(),
   body('price').optional().isFloat({ min: 0 }),
@@ -97,7 +120,11 @@ router.put('/:id', upload.single('image'), [
   }
 
   const { name, price, description, category } = req.body;
-  // Use full URL for uploaded images
+  let variants = [];
+  try {
+    variants = req.body.variants ? JSON.parse(req.body.variants) : [];
+  } catch (e) {}
+
   let image = undefined;
   if (req.file) {
     const protocol = req.protocol;
@@ -118,6 +145,20 @@ router.put('/:id', upload.single('image'), [
 
   db.run(query, params, function(err) {
     if (err) return res.status(500).json({ error: err.message });
+    
+    // Update variants: Delete all and re-insert (simplest strategy)
+    if (variants.length > 0) {
+      db.run('DELETE FROM product_variants WHERE product_id = ?', [req.params.id], (err) => {
+        if (!err) {
+          const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier) VALUES (?, ?, ?, ?, ?)');
+          variants.forEach(v => {
+            stmt.run(req.params.id, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0);
+          });
+          stmt.finalize();
+        }
+      });
+    }
+
     res.json({ message: 'Product updated' });
   });
 });

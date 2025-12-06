@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getProductById, addProduct, updateProduct } from '../../services/api';
+import { Plus, Trash2, HelpCircle } from 'lucide-react';
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ const ProductForm = () => {
     features: '',
     category: 'Unisex',
   });
+  const [variants, setVariants] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,9 @@ const ProductForm = () => {
             category: product.category || 'Unisex',
           });
           setCurrentImageUrl(product.image);
+          if (product.variants) {
+            setVariants(product.variants);
+          }
         } catch (error) {
           console.error('Failed to fetch product', error);
         }
@@ -48,6 +53,23 @@ const ProductForm = () => {
     setImageFile(e.target.files[0]);
   };
 
+  // Variant Handlers
+  const addVariant = () => {
+    setVariants([...variants, { color: '', color_code: '#000000', stock: 0, price_modifier: 0 }]);
+  };
+
+  const removeVariant = (index) => {
+    const newVariants = [...variants];
+    newVariants.splice(index, 1);
+    setVariants(newVariants);
+  };
+
+  const handleVariantChange = (index, field, value) => {
+    const newVariants = [...variants];
+    newVariants[index][field] = value;
+    setVariants(newVariants);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -58,6 +80,9 @@ const ProductForm = () => {
     data.append('description', formData.description);
     data.append('features', formData.features);
     data.append('category', formData.category);
+    
+    // Append variants as JSON string
+    data.append('variants', JSON.stringify(variants));
     
     if (imageFile) {
       data.append('image', imageFile);
@@ -80,127 +105,131 @@ const ProductForm = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">
         {isEditMode ? 'Edit Product' : 'Add New Product'}
       </h1>
       
       <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Product Name
-          </label>
-          <div className="mt-1">
-            <input
-              type="text"
-              name="name"
-              id="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-            Price (PKR)
-          </label>
-          <div className="mt-1 relative rounded-md shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="text-gray-500 sm:text-sm">Rs.</span>
+        <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div className="sm:col-span-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Product Name</label>
+            <div className="mt-1">
+              <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" />
             </div>
-            <input
-              type="number"
-              name="price"
-              id="price"
-              required
-              min="0"
-              step="1"
-              value={formData.price}
-              onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 pl-12 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-              placeholder="0"
-            />
           </div>
-        </div>
 
-        <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-            Product Image
-          </label>
-          <div className="mt-1">
-             <input
-              type="file"
-              name="image"
-              id="image"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-            />
-          </div>
-          {currentImageUrl && !imageFile && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-500 mb-1">Current Image:</p>
-              <img src={currentImageUrl} alt="Current" className="h-20 w-20 object-cover rounded-md" />
+          <div className="sm:col-span-2">
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (PKR)</label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-gray-500 sm:text-sm">Rs.</span>
+              </div>
+              <input type="number" name="price" id="price" required min="0" step="1" value={formData.price} onChange={handleChange} className="block w-full rounded-md border-gray-300 pl-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="0" />
             </div>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            Category
-          </label>
-          <div className="mt-1">
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-            >
+          </div>
+          
+          <div className="sm:col-span-3">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+            <select id="category" name="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
               <option value="Unisex">Unisex</option>
               <option value="Men">Men</option>
               <option value="Women">Women</option>
             </select>
           </div>
-        </div>
 
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <div className="mt-1">
-            <textarea
-              id="description"
-              name="description"
-              rows={3}
-              required
-              value={formData.description}
-              onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-            />
+          <div className="sm:col-span-6">
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Product Image</label>
+            <div className="mt-1 flex items-center gap-4">
+               <input type="file" name="image" id="image" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+               {currentImageUrl && !imageFile && (
+                <img src={currentImageUrl} alt="Current" className="h-16 w-16 object-cover rounded-md border" />
+              )}
+            </div>
+          </div>
+
+          <div className="sm:col-span-6">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+            <div className="mt-1">
+              <textarea id="description" name="description" rows={3} required value={formData.description} onChange={handleChange} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" />
+            </div>
+          </div>
+
+          <div className="sm:col-span-6">
+            <label htmlFor="features" className="block text-sm font-medium text-gray-700">Features (one per line)</label>
+            <div className="mt-1">
+              <textarea id="features" name="features" rows={3} value={formData.features} onChange={handleChange} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" />
+            </div>
           </div>
         </div>
 
-        <div>
-          <label htmlFor="features" className="block text-sm font-medium text-gray-700">
-            Features (one per line)
-          </label>
-          <div className="mt-1">
-            <textarea
-              id="features"
-              name="features"
-              rows={4}
-              value={formData.features}
-              onChange={handleChange}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-            />
+        {/* Variants Section */}
+        <div className="border-t pt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Color Variants & Stock</h3>
+            <button type="button" onClick={addVariant} className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <Plus size={16} className="mr-1" /> Add Variant
+            </button>
           </div>
+          
+          {variants.length === 0 ? (
+             <p className="text-sm text-gray-500 italic">No variants added. Standard product with shared stock.</p>
+          ) : (
+            <div className="space-y-3">
+              {variants.map((variant, index) => (
+                <div key={index} className="flex flex-wrap items-end gap-3 bg-gray-50 p-3 rounded-md border border-gray-200">
+                  <div className="flex-1 min-w-[150px]">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Color Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Midnight Blue"
+                      value={variant.color}
+                      onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Color Code</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={variant.color_code}
+                        onChange={(e) => handleVariantChange(index, 'color_code', e.target.value)}
+                        className="h-8 w-8 p-0 border-0 rounded cursor-pointer"
+                      />
+                      <span className="text-xs text-gray-500">{variant.color_code}</span>
+                    </div>
+                  </div>
+                  <div className="w-24">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Stock</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={variant.stock}
+                      onChange={(e) => handleVariantChange(index, 'stock', parseInt(e.target.value) || 0)}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-1"
+                    />
+                  </div>
+                  <div className="w-28">
+                     <label className="block text-xs font-medium text-gray-500 mb-1">Price (+/-)</label>
+                     <input
+                      type="number"
+                      step="0.01"
+                      value={variant.price_modifier}
+                      onChange={(e) => handleVariantChange(index, 'price_modifier', parseFloat(e.target.value) || 0)}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-1"
+                    />
+                  </div>
+                  <button type="button" onClick={() => removeVariant(index)} className="text-red-600 hover:text-red-800 p-1">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4 border-t">
           <button
             type="button"
             onClick={() => navigate('/admin/products')}
@@ -213,7 +242,7 @@ const ProductForm = () => {
             disabled={loading}
             className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? 'Saving...' : 'Save Product'}
           </button>
         </div>
       </form>
