@@ -2,6 +2,7 @@ import React from 'react';
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import NewsletterSignup from './NewsletterSignup';
 
 const Footer = () => {
   const { theme } = useTheme();
@@ -34,6 +35,18 @@ const Footer = () => {
                 <Linkedin size={20} />
               </a>
             </div>
+            
+            {/* Added Contact Info here to save space in col 4 */}
+            <div className="pt-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2">
+                <MapPin size={16} />
+                <span>Horology District, NY 10001</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail size={16} />
+                <span>concierge@m-timepiece.com</span>
+              </div>
+            </div>
           </div>
 
           {/* Links */}
@@ -57,23 +70,13 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Newsletter */}
           <div>
-            <h3 className="font-bold text-gray-900 dark:text-white mb-6">Contact</h3>
-            <ul className="space-y-4 text-sm text-gray-500 dark:text-gray-400">
-              <li className="flex items-start gap-3">
-                <MapPin size={18} className="mt-0.5" />
-                <span>123 Luxury Lane, Horology District,<br />New York, NY 10001</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone size={18} />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail size={18} />
-                <span>concierge@m-timepiece.com</span>
-              </li>
-            </ul>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-6">Stay Updated</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
+              Subscribe for exclusive offers, new arrivals, and watch care tips.
+            </p>
+            <NewsletterSignup />
           </div>
         </div>
 
