@@ -62,22 +62,21 @@ import { execSync } from 'child_process';
 
 try {
   console.log('Running database migrations...');
+  // Migration scripts
   const migrationScripts = [
     'migrate.js',
     'migrate_tracking.js',
     'migrate_loyalty.js',
     'migrate_variants.js',
-    'migrate_order_variants.js'
+    'migrate_order_variants.js',
+    'migrate_reviews_fix.js'
   ];
 
   migrationScripts.forEach(script => {
-    try {
       console.log(`Executing ${script}...`);
-      // Use node to run the script in the current directory
       execSync(`node ${script}`, { stdio: 'inherit', cwd: __dirname });
     } catch (e) {
-      console.error(`Failed to run ${script}:`, e.message);
-      // Don't exit, try next migration (soft fail)
+      // ignore
     }
   });
   console.log('All migrations attempted.');

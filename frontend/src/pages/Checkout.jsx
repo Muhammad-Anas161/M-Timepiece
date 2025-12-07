@@ -65,7 +65,17 @@ const Checkout = () => {
       */
      
       // Unified Success Handler
-      if (paymentMethod === 'WhatsApp' || paymentMethod === 'Bank Transfer') {
+      if (paymentMethod === 'WhatsApp') {
+        const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
+        const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
+        
+        toast.success('Order placed! Redirecting to WhatsApp...');
+        // Small delay to allow toast to show
+        setTimeout(() => {
+          window.location.href = whatsappUrl;
+        }, 1500);
+        
+      } else if (paymentMethod === 'Bank Transfer') {
         toast.success(`Order Placed! Check email for details.`);
         navigate('/');
       } else {
@@ -97,16 +107,17 @@ const Checkout = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12 pt-24">
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-12 pt-24 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
         
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
           {/* Order Summary */}
           <div className="mt-10 lg:mt-0 lg:col-start-2">
-            <h2 className="text-lg font-medium text-gray-900">Order summary</h2>
-            <div className="mt-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <ul role="list" className="divide-y divide-gray-200">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Order summary</h2>
+            <div className="mt-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm transition-colors duration-200">
+              <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
                 {cartItems.map((product) => (
                   <li key={product.id} className="flex py-6 px-4 sm:px-6">
                     <div className="flex-shrink-0">
@@ -120,36 +131,36 @@ const Checkout = () => {
                       <div className="flex">
                         <div className="min-w-0 flex-1">
                           <h4 className="text-sm">
-                            <a href="#" className="font-medium text-gray-700 hover:text-gray-800">
+                            <a href="#" className="font-medium text-gray-700 dark:text-gray-200 hover:text-gray-800">
                               {product.name}
                             </a>
                           </h4>
                         </div>
                       </div>
                       <div className="flex-1 pt-2 flex items-end justify-between">
-                        <p className="mt-1 text-sm font-medium text-gray-900">{formatPrice(product.price)}</p>
+                        <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">{formatPrice(product.price)}</p>
                         <div className="ml-4">
-                          <p className="text-sm text-gray-500">Qty {product.quantity}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Qty {product.quantity}</p>
                         </div>
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
-              <dl className="border-t border-gray-200 py-6 px-4 space-y-6 sm:px-6">
+              <dl className="border-t border-gray-200 dark:border-gray-700 py-6 px-4 space-y-6 sm:px-6">
                 <div className="flex items-center justify-between">
-                  <dt className="text-sm">Subtotal</dt>
-                  <dd className="text-sm font-medium text-gray-900">{formatPrice(cartTotal)}</dd>
+                  <dt className="text-sm text-gray-600 dark:text-gray-300">Subtotal</dt>
+                  <dd className="text-sm font-medium text-gray-900 dark:text-white">{formatPrice(cartTotal)}</dd>
                 </div>
                 {appliedCoupon && (
-                  <div className="flex items-center justify-between text-green-600">
+                  <div className="flex items-center justify-between text-green-600 dark:text-green-400">
                     <dt className="text-sm">Discount ({appliedCoupon.code})</dt>
                     <dd className="text-sm font-medium">-{formatPrice(appliedCoupon.discount_amount)}</dd>
                   </div>
                 )}
-                <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                  <dt className="text-base font-medium">Total</dt>
-                  <dd className="text-base font-medium text-gray-900">{formatPrice(finalTotal)}</dd>
+                <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6">
+                  <dt className="text-base font-medium text-gray-900 dark:text-white">Total</dt>
+                  <dd className="text-base font-medium text-gray-900 dark:text-white">{formatPrice(finalTotal)}</dd>
                 </div>
               </dl>
             </div>
@@ -159,12 +170,12 @@ const Checkout = () => {
           <div className="mt-10 lg:mt-0 lg:col-start-1">
             <form onSubmit={handleSubmit}>
               <div className="shadow sm:rounded-md sm:overflow-hidden">
-                <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
+                <div className="bg-white dark:bg-gray-800 py-6 px-4 space-y-6 sm:p-6 transition-colors duration-200">
                   <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">Contact Information</h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Contact Information</h3>
                     <div className="mt-6 grid grid-cols-6 gap-6">
                       <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
                         <input
                           type="text"
                           name="name"
@@ -172,12 +183,12 @@ const Checkout = () => {
                           required
                           value={formData.name}
                           onChange={handleChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
 
                       <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
                         <input
                           type="email"
                           name="email"
@@ -185,12 +196,12 @@ const Checkout = () => {
                           required
                           value={formData.email}
                           onChange={handleChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
 
                       <div className="col-span-6">
-                        <label htmlFor="street" className="block text-sm font-medium text-gray-700">Street address</label>
+                        <label htmlFor="street" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Street address</label>
                         <input
                           type="text"
                           name="street"
@@ -198,12 +209,12 @@ const Checkout = () => {
                           required
                           value={formData.street}
                           onChange={handleChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
 
                       <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
+                        <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
                         <input
                           type="text"
                           name="city"
@@ -211,12 +222,12 @@ const Checkout = () => {
                           required
                           value={formData.city}
                           onChange={handleChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
 
                       <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="zip" className="block text-sm font-medium text-gray-700">ZIP / Postal code</label>
+                        <label htmlFor="zip" className="block text-sm font-medium text-gray-700 dark:text-gray-300">ZIP / Postal code</label>
                         <input
                           type="text"
                           name="zip"
@@ -224,7 +235,7 @@ const Checkout = () => {
                           required
                           value={formData.zip}
                           onChange={handleChange}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
                     </div>
@@ -232,7 +243,7 @@ const Checkout = () => {
 
                   {/* Payment Method Selection */}
                   <div>
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">Payment Method</h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Payment Method</h3>
                     <div className="mt-4 space-y-4">
                       <div className="flex items-center">
                         <input
@@ -241,9 +252,9 @@ const Checkout = () => {
                           type="radio"
                           checked={paymentMethod === 'Credit Card'}
                           onChange={() => setPaymentMethod('Credit Card')}
-                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                         />
-                        <label htmlFor="credit-card" className="ml-3 block text-sm font-medium text-gray-700 flex items-center">
+                        <label htmlFor="credit-card" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                           <CreditCard className="mr-2 h-5 w-5 text-gray-400" />
                           Credit Card (Online)
                         </label>
@@ -255,9 +266,9 @@ const Checkout = () => {
                           type="radio"
                           checked={paymentMethod === 'Bank Transfer'}
                           onChange={() => setPaymentMethod('Bank Transfer')}
-                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                         />
-                        <label htmlFor="bank-transfer" className="ml-3 block text-sm font-medium text-gray-700 flex items-center">
+                        <label htmlFor="bank-transfer" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                           <Mail className="mr-2 h-5 w-5 text-gray-400" />
                           Bank Transfer (Email Screenshot)
                         </label>
@@ -269,9 +280,9 @@ const Checkout = () => {
                           type="radio"
                           checked={paymentMethod === 'WhatsApp'}
                           onChange={() => setPaymentMethod('WhatsApp')}
-                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                         />
-                        <label htmlFor="whatsapp" className="ml-3 block text-sm font-medium text-gray-700 flex items-center">
+                        <label htmlFor="whatsapp" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                           <MessageCircle className="mr-2 h-5 w-5 text-gray-400" />
                           WhatsApp Order
                         </label>
@@ -288,7 +299,7 @@ const Checkout = () => {
                   </div>
 
                 </div>
-                <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 text-right sm:px-6">
                   <button
                     type="submit"
                     disabled={loading}

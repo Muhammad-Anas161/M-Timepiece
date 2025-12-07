@@ -90,8 +90,11 @@ db.serialize(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id INTEGER,
     user_name TEXT,
+    user_email TEXT,
     rating INTEGER,
+    title TEXT,
     comment TEXT,
+    verified_purchase INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(product_id) REFERENCES products(id)
   )`);
