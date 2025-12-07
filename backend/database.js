@@ -99,6 +99,20 @@ db.serialize(() => {
     FOREIGN KEY(product_id) REFERENCES products(id)
   )`);
 
+  // Schema Fix: Ensure reviews table has new columns (for existing databases)
+  const reviewColumns = ['user_email', 'title', 'verified_purchase'];
+  reviewColumns.forEach(col => {
+    // Determine type - simplified for this specific fix
+    const type = col === 'verified_purchase' ? 'INTEGER DEFAULT 0' : 'TEXT';
+    
+    db.run(`ALTER TABLE reviews ADD COLUMN ${col} ${type}`, (err) => {
+      // Ignore duplicate column error, log others
+      if (err && !err.message.includes('duplicate column')) {
+        console.error(`Migration warning: Could not add ${col} to reviews:`, err.message);
+      }
+    });
+  });
+
   // Coupons Table
   db.run(`CREATE TABLE IF NOT EXISTS coupons (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

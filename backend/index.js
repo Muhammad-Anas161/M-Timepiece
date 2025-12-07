@@ -68,8 +68,7 @@ try {
     'migrate_tracking.js',
     'migrate_loyalty.js',
     'migrate_variants.js',
-    'migrate_order_variants.js',
-    'migrate_reviews_fix.js'
+    'migrate_order_variants.js'
   ];
 
   migrationScripts.forEach(script => {
