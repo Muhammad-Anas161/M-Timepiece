@@ -57,32 +57,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Auto-run migrations on startup (Fix for Railway defaulting to 'node index.js')
-import { execSync } from 'child_process';
-
-try {
-  console.log('Running database migrations...');
-  // Migration scripts
-  const migrationScripts = [
-    'migrate.js',
-    'migrate_tracking.js',
-    'migrate_loyalty.js',
-    'migrate_variants.js',
-    'migrate_order_variants.js'
-  ];
-
-  migrationScripts.forEach(script => {
-    try {
-      console.log(`Executing ${script}...`);
-      execSync(`node ${script}`, { stdio: 'inherit', cwd: __dirname });
-    } catch (e) {
-      // ignore
-    }
-  });
-  console.log('All migrations attempted.');
-} catch (error) {
-  console.error('Migration runner failed:', error);
-}
+// Auto-run migrations is now handled by database.js internally
+// The explicit script execution is removed to prevent lock contention and race conditions
+console.log('Database schema initialized via database.js');
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {

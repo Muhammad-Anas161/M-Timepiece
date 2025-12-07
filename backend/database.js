@@ -147,7 +147,24 @@ db.serialize(() => {
     used_count INTEGER DEFAULT 0,
     valid_until DATETIME,
     is_active INTEGER DEFAULT 1
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating coupons table:", err.message);
+    else console.log("Coupons table verified/created");
+  });
+
+  // Loyalty History Table
+  db.run(`CREATE TABLE IF NOT EXISTS loyalty_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    points INTEGER,
+    type TEXT, -- 'earned' or 'redeemed'
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`, (err) => {
+    if (err) console.error("Error creating loyalty_history table:", err.message);
+    else console.log("Loyalty History table verified/created");
+  });
 
   // Seed Admin User
   const adminPassword = 'password123';
