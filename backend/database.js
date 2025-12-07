@@ -172,6 +172,38 @@ db.serialize(() => {
     else console.log("Coupons table verified/created");
   });
 
+  // Migrate old coupons table if it has is_active instead of active
+  db.all("PRAGMA table_info(coupons)", [], (err, columns) => {
+    if (!err && columns) {
+      const hasIsActive = columns.some(col => col.name === 'is_active');
+      const hasActive = columns.some(col => col.name === 'active');
+      
+      if (hasIsActive && !hasActive) {
+        console.log("Migrating coupons table: renaming is_active to active");
+        // SQLite doesn't support column rename directly, so we need to recreate the table
+        db.serialize(() => {
+          db.run("ALTER TABLE coupons RENAME TO coupons_old");
+          db.run(`CREATE TABLE coupons (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT UNIQUE,
+            discount_type TEXT,
+            discount_value REAL,
+            min_purchase REAL,
+            max_discount REAL,
+            usage_limit INTEGER,
+            used_count INTEGER DEFAULT 0,
+            valid_until DATETIME,
+            active INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          )`);
+          db.run("INSERT INTO coupons (id, code, discount_type, discount_value, min_purchase, max_discount, usage_limit, used_count, valid_until, active) SELECT id, code, discount_type, discount_value, min_purchase, max_discount, usage_limit, used_count, valid_until, is_active FROM coupons_old");
+          db.run("DROP TABLE coupons_old");
+          console.log("Coupons table migration complete");
+        });
+      }
+    }
+  });
+
   // Loyalty History Table
   db.run(`CREATE TABLE IF NOT EXISTS loyalty_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

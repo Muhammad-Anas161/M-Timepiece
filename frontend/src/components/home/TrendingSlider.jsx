@@ -37,7 +37,7 @@ const TrendingSlider = () => {
   };
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-10">
           <motion.div 
@@ -45,8 +45,8 @@ const TrendingSlider = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold text-gray-900">Trending Now</h2>
-            <p className="text-gray-500 mt-2">Top picks from our premium collection</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Trending Now</h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">Top picks from our premium collection</p>
           </motion.div>
           <Link to="/shop" className="hidden md:block text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
             View All Products &rarr;
@@ -65,19 +65,6 @@ const TrendingSlider = () => {
             768: { slidesPerView: 3 },
             1024: { slidesPerView: 4 },
           }}
-          className="pb-12"
-        >
-          {products.map((product) => (
-            <SwiperSlide key={product.id}>
-              <motion.div 
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group h-full"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
-                  <img 
-                    src={product.image || 'https://via.placeholder.com/400x500'} 
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   
                   {/* Overlay Actions */}
@@ -107,14 +94,14 @@ const TrendingSlider = () => {
                 </div>
 
                 <div className="p-4">
-                  <p className="text-sm text-gray-500 mb-1">{product.category}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{product.category}</p>
                   <Link to={`/product/${product.id}`}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate hover:text-indigo-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                       {product.name}
                     </h3>
                   </Link>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-900">Rs. {product.price.toLocaleString()}</span>
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">Rs. {product.price.toLocaleString()}</span>
                     <div className="flex items-center text-yellow-400 text-sm">
                       <span>★</span>
                       <span className="text-gray-400 ml-1">(4.5)</span>
