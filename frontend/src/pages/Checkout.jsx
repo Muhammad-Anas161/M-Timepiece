@@ -54,9 +54,7 @@ const Checkout = () => {
       
       clearCart();
 
-      /*
-      /*
-      // Handler for WhatsApp
+      // Unified Success Handler
       if (paymentMethod === 'WhatsApp') {
         const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
         const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
