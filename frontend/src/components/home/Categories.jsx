@@ -42,7 +42,7 @@ const categories = [
 
 const Categories = () => {
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -50,8 +50,8 @@ const Categories = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Shop by Category</h2>
+          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Explore our wide range of timepieces designed for every occasion and style.
           </p>
         </motion.div>

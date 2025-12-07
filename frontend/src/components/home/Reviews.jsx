@@ -45,11 +45,11 @@ const reviews = [
 
 const Reviews = () => {
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">What Our Customers Say</h2>
-          <p className="text-gray-500 mt-2">Trusted by thousands of happy customers across Pakistan</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">What Our Customers Say</h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Trusted by thousands of happy customers across Pakistan</p>
         </div>
 
         <Swiper
@@ -68,20 +68,20 @@ const Reviews = () => {
             <SwiperSlide key={review.id}>
               <motion.div 
                 whileHover={{ y: -5 }}
-                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-full relative"
+                className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 h-full relative transition-colors duration-200"
               >
-                <Quote className="absolute top-6 right-6 text-indigo-100" size={40} />
+                <Quote className="absolute top-6 right-6 text-indigo-100 dark:text-indigo-900/50" size={40} />
                 
                 <div className="flex items-center gap-4 mb-6">
                   <img 
                     src={review.image} 
                     alt={review.name} 
-                    className="w-14 h-14 rounded-full object-cover border-2 border-indigo-100"
+                    className="w-14 h-14 rounded-full object-cover border-2 border-indigo-100 dark:border-indigo-900"
                   />
                   <div>
-                    <h4 className="font-bold text-gray-900">{review.name}</h4>
+                    <h4 className="font-bold text-gray-900 dark:text-white">{review.name}</h4>
                     {review.verified && (
-                      <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full font-medium">
+                      <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full font-medium">
                         Verified Buyer
                       </span>
                     )}
@@ -93,12 +93,12 @@ const Reviews = () => {
                     <Star 
                       key={i} 
                       size={16} 
-                      className={i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"} 
+                      className={i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300 dark:text-gray-600"} 
                     />
                   ))}
                 </div>
 
-                <p className="text-gray-600 leading-relaxed">"{review.text}"</p>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">"{review.text}"</p>
               </motion.div>
             </SwiperSlide>
           ))}
