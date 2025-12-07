@@ -57,23 +57,25 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Newsletter */}
           <div>
-            <h3 className="font-bold text-white mb-6">Contact</h3>
-            <ul className="space-y-4 text-sm text-gray-400">
-              <li className="flex items-start gap-3">
-                <MapPin size={18} className="mt-0.5" />
-                <span>123 Luxury Lane, Horology District,<br />New York, NY 10001</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone size={18} />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail size={18} />
-                <span>concierge@m-timepiece.com</span>
-              </li>
-            </ul>
+            <h3 className="font-bold text-white mb-6">NEWSLETTER</h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Subscribe for exclusive offers and updates!
+            </p>
+            <form className="flex flex-col gap-3">
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                className="bg-transparent border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
+              />
+              <button 
+                type="submit" 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+              >
+                Subscribe
+              </button>
+            </form>
           </div>
         </div>
 
