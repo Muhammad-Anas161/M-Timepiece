@@ -30,9 +30,6 @@ const ProductDetails = () => {
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);
         }
-        
-        // Force scroll to top when new product data loads
-        window.scrollTo(0, 0);
       } catch (err) {
         setError(err.message);
       } finally {

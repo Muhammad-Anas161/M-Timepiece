@@ -55,25 +55,16 @@ const Checkout = () => {
       clearCart();
 
       /*
-      // Handle different payment methods
-      if (paymentMethod === 'WhatsApp') {
-        const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: ${formatPrice(cartTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
-        const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
-        window.location.href = whatsappUrl;
-        toast.success('Redirecting to WhatsApp...');
-      } else if (paymentMethod === 'Bank Transfer') {
-      */
-     
-      // Unified Success Handler
+      /*
+      // Handler for WhatsApp
       if (paymentMethod === 'WhatsApp') {
         const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
         const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
         
-        toast.success('Order placed! Redirecting to WhatsApp...');
-        // Small delay to allow toast to show
-        setTimeout(() => {
-          window.location.href = whatsappUrl;
-        }, 1500);
+        toast.success('Order placed! Opening WhatsApp...');
+        // Use window.open for better reliability (avoids page unload issues)
+        window.open(whatsappUrl, '_blank');
+        navigate('/');
         
       } else if (paymentMethod === 'Bank Transfer') {
         toast.success(`Order Placed! Check email for details.`);
@@ -111,9 +102,9 @@ const Checkout = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Checkout</h1>
         
-        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16 items-start">
           {/* Order Summary */}
-          <div className="mt-10 lg:mt-0 lg:col-start-2">
+          <div className="mt-10 lg:mt-0 lg:col-start-2 lg:row-start-1">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">Order summary</h2>
             <div className="mt-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm transition-colors duration-200">
               <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
