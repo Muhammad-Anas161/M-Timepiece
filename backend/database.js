@@ -20,7 +20,10 @@ db.serialize(() => {
     email TEXT UNIQUE,
     password TEXT,
     loyalty_points INTEGER DEFAULT 0
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating users table:", err.message);
+    else console.log("Users table verified/created");
+  });
 
   // Products Table
   db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -31,7 +34,10 @@ db.serialize(() => {
     description TEXT,
     features TEXT,
     category TEXT DEFAULT 'Unisex'
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating products table:", err.message);
+    else console.log("Products table verified/created");
+  });
 
   // Product Variants Table
   db.run(`CREATE TABLE IF NOT EXISTS product_variants (
@@ -42,7 +48,10 @@ db.serialize(() => {
     stock INTEGER DEFAULT 0,
     price_modifier REAL DEFAULT 0,
     FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating product_variants table:", err.message);
+    else console.log("Product Variants table verified/created");
+  });
 
   // Orders Table
   db.run(`CREATE TABLE IF NOT EXISTS orders (
@@ -56,7 +65,10 @@ db.serialize(() => {
     status TEXT DEFAULT 'Pending',
     payment_method TEXT DEFAULT 'Credit Card',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating orders table:", err.message);
+    else console.log("Orders table verified/created");
+  });
 
   // Order Items Table
   db.run(`CREATE TABLE IF NOT EXISTS order_items (
@@ -68,7 +80,10 @@ db.serialize(() => {
     variant_id INTEGER,
     variant_info TEXT,
     FOREIGN KEY(order_id) REFERENCES orders(id)
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating order_items table:", err.message);
+    else console.log("Order Items table verified/created");
+  });
 
   // Visitor Logs Table
   db.run(`CREATE TABLE IF NOT EXISTS visitor_logs (
@@ -84,7 +99,10 @@ db.serialize(() => {
     referrer TEXT,
     page_url TEXT,
     visit_time DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating visitor_logs table:", err.message);
+    else console.log("Visitor Logs table verified/created");
+  });
 
   // Reviews Table
   db.run(`CREATE TABLE IF NOT EXISTS reviews (
@@ -98,7 +116,10 @@ db.serialize(() => {
     verified_purchase INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(product_id) REFERENCES products(id)
-  )`);
+  )`, (err) => {
+    if (err) console.error("Error creating reviews table:", err.message);
+    else console.log("Reviews table verified/created");
+  });
 
   // Schema Fix: Ensure reviews table has new columns (for existing databases)
   const reviewColumns = ['user_email', 'title', 'verified_purchase'];
