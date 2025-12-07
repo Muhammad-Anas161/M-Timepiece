@@ -7,9 +7,22 @@ import { body, validationResult } from 'express-validator';
 const router = express.Router();
 
 // Configure Multer for image upload
+// Configure Multer to use persistent volume if available
+import fs from 'fs';
+
+const isRailwayVolume = process.env.DB_FILE_PATH && process.env.DB_FILE_PATH.includes('/app/data');
+const uploadDir = isRailwayVolume 
+  ? path.join('/app/data', 'uploads') 
+  : process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
+
+// Ensure upload directory exists
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
