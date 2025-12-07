@@ -87,7 +87,8 @@ router.post('/', upload.single('image'), [
 
   let image = '';
   if (req.file) {
-    const protocol = req.protocol;
+    // Force HTTPS in production/railway env, fallback to request protocol
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
     const host = req.get('host');
     image = `${protocol}://${host}/uploads/${req.file.filename}`;
   }
@@ -132,7 +133,7 @@ router.put('/:id', upload.single('image'), [
 
   let image = undefined;
   if (req.file) {
-    const protocol = req.protocol;
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
     const host = req.get('host');
     image = `${protocol}://${host}/uploads/${req.file.filename}`;
   }
