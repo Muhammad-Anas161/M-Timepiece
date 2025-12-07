@@ -21,19 +21,19 @@ export const ThemeProvider = ({ children }) => {
     if (theme === 'dark') {
       root.classList.add('dark');
       // Change Favicon to White Logo
-      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-      link.type = 'image/png';
-      link.rel = 'icon';
-      link.href = '/logo-white.png'; 
-      document.getElementsByTagName('head')[0].appendChild(link);
+      const link = document.getElementById('favicon') || document.querySelector("link[rel*='icon']");
+      if (link) {
+        link.href = '/logo-white.png';
+        link.type = 'image/png';
+      }
     } else {
       root.classList.remove('dark');
       // Change Favicon to Black Logo
-      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-      link.type = 'image/png';
-      link.rel = 'icon';
-      link.href = '/logo-black.png';
-      document.getElementsByTagName('head')[0].appendChild(link);
+      const link = document.getElementById('favicon') || document.querySelector("link[rel*='icon']");
+      if (link) {
+        link.href = '/logo-black.png';
+        link.type = 'image/png';
+      }
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
