@@ -3,7 +3,7 @@ import db from '../database.js';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
-const SECRET_KEY = 'your-secret-key-change-this-in-production';
+const SECRET_KEY = 'your-secret-key'; // Must match auth.js
 
 const authenticate = (req, res, next) => {
   const authHeader = req.headers['authorization'];
