@@ -20,8 +20,20 @@ export const ThemeProvider = ({ children }) => {
     const root = window.document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      // Change Favicon to White Logo
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/png';
+      link.rel = 'icon';
+      link.href = '/logo-white.png'; 
+      document.getElementsByTagName('head')[0].appendChild(link);
     } else {
       root.classList.remove('dark');
+      // Change Favicon to Black Logo
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/png';
+      link.rel = 'icon';
+      link.href = '/logo-black.png';
+      document.getElementsByTagName('head')[0].appendChild(link);
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
