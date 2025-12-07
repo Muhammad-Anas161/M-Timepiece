@@ -3,23 +3,7 @@ import db from '../database.js';
 
 const router = express.Router();
 
-// Create coupons table
-db.run(`CREATE TABLE IF NOT EXISTS coupons (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  code TEXT UNIQUE NOT NULL,
-  discount_type TEXT NOT NULL CHECK(discount_type IN ('percentage', 'fixed')),
-  discount_value REAL NOT NULL,
-  min_purchase REAL DEFAULT 0,
-  max_discount REAL,
-  usage_limit INTEGER,
-  used_count INTEGER DEFAULT 0,
-  valid_from DATETIME DEFAULT CURRENT_TIMESTAMP,
-  valid_until DATETIME,
-  active INTEGER DEFAULT 1,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)`, (err) => {
-  if (err) console.error('Coupons table creation error:', err);
-});
+// Table creation handled in database.js
 
 // Validate and apply coupon
 router.post('/validate', (req, res) => {

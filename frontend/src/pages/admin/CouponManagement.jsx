@@ -25,9 +25,15 @@ const CouponManagement = () => {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const response = await fetch(`${API_URL}/coupons`);
       const data = await response.json();
-      setCoupons(data);
+      if (Array.isArray(data)) {
+        setCoupons(data);
+      } else {
+        console.error('Invalid coupons data:', data);
+        setCoupons([]); // Fallback to empty array
+      }
     } catch (error) {
       console.error('Failed to fetch coupons:', error);
+      setCoupons([]);
     } finally {
       setLoading(false);
     }
