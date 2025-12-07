@@ -24,21 +24,21 @@ const Contact = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen pt-20">
+    <div className="bg-white dark:bg-gray-900 min-h-screen pt-20 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Get in Touch</h1>
-          <p className="text-gray-600">We'd love to hear from you. Send us a message!</p>
+       <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Get in Touch</h1>
+          <p className="text-gray-600 dark:text-gray-400">We'd love to hear from you. Send us a message!</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 transition-colors duration-200">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Send us a Message</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Your Name *
                 </label>
                 <input
@@ -47,7 +47,7 @@ const Contact = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                   placeholder="John Doe"
                 />
               </div>
@@ -109,14 +109,14 @@ const Contact = () => {
           {/* Contact Information */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Contact Information</h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-green-100 rounded-lg">
                     <Phone className="text-green-600" size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">WhatsApp</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">WhatsApp</h3>
                     <a 
                       href="https://wa.me/923171067090" 
                       target="_blank"

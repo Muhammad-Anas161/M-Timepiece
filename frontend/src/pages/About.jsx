@@ -26,7 +26,7 @@ const About = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Hero Section */}
       <div className="relative bg-gray-900 text-white py-24">
         <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-gray-800 opacity-90"></div>
@@ -42,8 +42,8 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
-            <div className="space-y-4 text-gray-600 leading-relaxed">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Our Story</h2>
+            <div className="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed">
               <p>
                 M Timepiece was founded with a simple mission: to make premium watches accessible to everyone in Pakistan. We believe that a great watch is more than just a timekeeper—it's a statement of style, a mark of quality, and a companion for life's important moments.
               </p>
@@ -66,19 +66,19 @@ const About = () => {
       </div>
 
       {/* Values Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-50 dark:bg-gray-800 py-16 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Why Choose M Timepiece?</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-12">Why Choose M Timepiece?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => {
               const Icon = value.icon;
               return (
-                <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                  <div className="inline-flex p-3 bg-indigo-100 rounded-full mb-4">
-                    <Icon className="text-indigo-600" size={24} />
+                <div key={index} className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors duration-200">
+                  <div className="inline-flex p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <Icon className="text-indigo-600 dark:text-indigo-400" size={24} />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{value.title}</h3>
-                  <p className="text-gray-600 text-sm">{value.description}</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{value.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">{value.description}</p>
                 </div>
               );
             })}
