@@ -165,7 +165,8 @@ db.serialize(() => {
     usage_limit INTEGER,
     used_count INTEGER DEFAULT 0,
     valid_until DATETIME,
-    is_active INTEGER DEFAULT 1
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`, (err) => {
     if (err) console.error("Error creating coupons table:", err.message);
     else console.log("Coupons table verified/created");
