@@ -121,6 +121,25 @@ db.serialize(() => {
     else console.log("Reviews table verified/created");
   });
 
+  // --- SCHEMA CORRECTIONS FOR EXISTING TABLES ---
+  // Ensure 'category' exists in products
+  db.run("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'Unisex'", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (products.category):", err.message);
+  });
+
+  // Ensure 'payment_method' exists in orders
+  db.run("ALTER TABLE orders ADD COLUMN payment_method TEXT DEFAULT 'Credit Card'", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (orders.payment_method):", err.message);
+  });
+
+  // Ensure 'email', 'loyalty_points' exist in users
+  db.run("ALTER TABLE users ADD COLUMN email TEXT UNIQUE", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (users.email):", err.message);
+  });
+  db.run("ALTER TABLE users ADD COLUMN loyalty_points INTEGER DEFAULT 0", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (users.loyalty_points):", err.message);
+  });
+
   // Schema Fix: Ensure reviews table has new columns (for existing databases)
   const reviewColumns = ['user_email', 'title', 'verified_purchase'];
   reviewColumns.forEach(col => {
