@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getOrders } from '../../services/api';
+import usePrice from '../../hooks/usePrice';
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { formatPrice } = usePrice();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -47,7 +49,7 @@ const OrderList = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(order.created_at).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.total.toFixed(2)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatPrice(order.total)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.payment_method}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

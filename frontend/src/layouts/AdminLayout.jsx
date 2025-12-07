@@ -1,9 +1,17 @@
 import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingCart, Home, LogOut, Users } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -47,17 +55,18 @@ const AdminLayout = () => {
               })}
             </nav>
           </div>
-          <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-            <Link to="/" className="flex-shrink-0 w-full group block">
-              <div className="flex items-center">
-                <div>
-                  <Home className="inline-block h-9 w-9 rounded-full text-gray-400 p-1 border border-gray-300" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Back to Store</p>
-                </div>
-              </div>
+          <div className="flex-shrink-0 border-t border-gray-200">
+            <Link to="/" className="flex items-center px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+              <Home className="mr-3 h-5 w-5 text-gray-400" />
+              Back to Store
             </Link>
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="mr-3 h-5 w-5 text-red-500" />
+              Logout
+            </button>
           </div>
         </div>
       </div>
