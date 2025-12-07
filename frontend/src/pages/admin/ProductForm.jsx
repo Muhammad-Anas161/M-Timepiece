@@ -129,6 +129,7 @@ const ProductForm = () => {
             </div>
           </div>
           
+          <div className="sm:col-span-6">
             <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
             <input 
               type="text" 
