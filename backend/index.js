@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware - CORS configuration for production
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
-  credentials: true
+  credentials: false // No cookies used, safer for wildcard origin
 }));
 app.use(express.json());
 
@@ -72,6 +72,7 @@ try {
   ];
 
   migrationScripts.forEach(script => {
+    try {
       console.log(`Executing ${script}...`);
       execSync(`node ${script}`, { stdio: 'inherit', cwd: __dirname });
     } catch (e) {
