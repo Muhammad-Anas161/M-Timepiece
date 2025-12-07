@@ -9,6 +9,7 @@ const __dirname = dirname(__filename);
 // Allow database path to be configured via environment variable (useful for volumes)
 // Default to local file if not specified
 const dbPath = process.env.DB_FILE_PATH || join(__dirname, 'database.sqlite');
+console.log('🔌 Database Connection Path:', dbPath); // Log for debugging persistence
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
