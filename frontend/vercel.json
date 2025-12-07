@@ -1,8 +1,13 @@
+```json
 {
     "rewrites": [
         {
             "source": "/(.*)",
-            "destination": "/index.html"
+            "destination": "/"
         }
-    ]
+    ],
+    "env": {
+        "VITE_API_URL": "https://watch-junction-production.up.railway.app/api"
+    }
 }
+```
