@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import SEO from './components/SEO';
 import TrustBadges from './components/TrustBadges';
+import ScrollToTop from './components/ScrollToTop';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
@@ -70,6 +71,7 @@ function App() {
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
         <Toaster position="top-center" />
         <WhatsAppButton />
+        <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public Routes */}
