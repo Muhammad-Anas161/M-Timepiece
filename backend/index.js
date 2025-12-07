@@ -37,9 +37,15 @@ app.use(cors({
 app.use(express.json());
 
 // Static files for uploads
-const uploadsDir = path.join(__dirname, 'uploads');
+// Static files for uploads
+// Check if we are using the volume path (Railway)
+const isRailwayVolume = process.env.DB_FILE_PATH && process.env.DB_FILE_PATH.includes('/app/data');
+const uploadsDir = isRailwayVolume 
+  ? path.join('/app/data', 'uploads') 
+  : process.env.UPLOADS_DIR || path.join(__dirname, 'uploads');
+
 if (!fs.existsSync(uploadsDir)){
-    fs.mkdirSync(uploadsDir);
+    fs.mkdirSync(uploadsDir, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsDir));
 
