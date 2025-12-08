@@ -77,14 +77,17 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// Create product with variants
-router.post('/', upload.single('image'), [
+import { verifyToken, isAdmin } from '../middleware/auth.js';
+
+// Create product with variants (Protected)
+router.post('/', verifyToken, isAdmin, upload.single('image'), [
   body('name').isString().notEmpty(),
   body('price').isFloat({ min: 0 }),
   body('description').isString(),
   body('category').isString().notEmpty()
   // variants is passed as a JSON string field 'variants'
 ], (req, res) => {
+  // ... existing implementation
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -126,13 +129,14 @@ router.post('/', upload.single('image'), [
   );
 });
 
-// Update product and variants
-router.put('/:id', upload.single('image'), [
+// Update product and variants (Protected)
+router.put('/:id', verifyToken, isAdmin, upload.single('image'), [
   body('name').optional().isString().notEmpty(),
   body('price').optional().isFloat({ min: 0 }),
   body('description').optional().isString(),
   body('category').optional().isString().notEmpty()
 ], (req, res) => {
+  // ... existing implementation
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -182,8 +186,8 @@ router.put('/:id', upload.single('image'), [
   });
 });
 
-// Delete product
-router.delete('/:id', (req, res) => {
+// Delete product (Protected)
+router.delete('/:id', verifyToken, isAdmin, (req, res) => {
   db.run('DELETE FROM products WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Product deleted' });
