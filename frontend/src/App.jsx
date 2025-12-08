@@ -147,17 +147,19 @@ function App() {
               <Route path="loyalty" element={<LoyaltyPoints />} />
             </Route>
 
-            {/* Admin Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Analytics />} />
-                <Route path="products" element={<ProductList />} />
-                <Route path="products/new" element={<ProductForm />} />
-                <Route path="products/edit/:id" element={<ProductForm />} />
-                <Route path="orders" element={<OrderList />} />
-                <Route path="coupons" element={<CouponManagement />} />
-                <Route path="traffic" element={<LiveTraffic />} />
-              </Route>
+            {/* Admin Routes - Protected */}
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Analytics />} />
+              <Route path="products" element={<ProductList />} />
+              <Route path="products/new" element={<ProductForm />} />
+              <Route path="products/edit/:id" element={<ProductForm />} />
+              <Route path="orders" element={<OrderList />} />
+              <Route path="coupons" element={<CouponManagement />} />
+              <Route path="traffic" element={<LiveTraffic />} />
             </Route>
           </Routes>
         </Suspense>

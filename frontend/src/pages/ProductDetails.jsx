@@ -87,7 +87,7 @@ const ProductDetails = () => {
   const displayStock = selectedVariant ? selectedVariant.stock : product.stock_quantity;
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-gray-900 transition-colors duration-200 min-h-screen">
       <div className="pt-24 pb-16 sm:pb-24">
         <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <ol role="list" className="flex items-center space-x-4">
