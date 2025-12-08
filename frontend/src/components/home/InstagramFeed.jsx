@@ -31,7 +31,27 @@ const posts = [
   {
     id: 6,
     image: "https://images.unsplash.com/photo-1539874754764-5a96559165b0?q=80&w=600&auto=format&fit=crop",
-              href="https://www.instagram.com/m_timepiece1/"
+    link: "#"
+  }
+];
+
+const InstagramFeed = () => {
+  return (
+    <section className="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center mb-12">
+          <div className="p-3 bg-pink-50 dark:bg-pink-900/20 text-pink-600 rounded-full mb-4">
+            <Instagram size={32} />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Follow Us on Instagram</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">@m_timepiece_</p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          {posts.map((post) => (
+            <motion.a
+              key={post.id}
+              href="https://www.instagram.com/m_timepiece_/"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02 }}
@@ -51,10 +71,10 @@ const posts = [
 
         <div className="text-center mt-10">
           <a 
-            href="https://www.instagram.com/m_timepiece1/" 
+            href="https://www.instagram.com/m_timepiece_/" 
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-white border-2 border-gray-900 text-gray-900 rounded-full font-bold hover:bg-gray-900 hover:text-white transition-all"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-white dark:bg-gray-800 border-2 border-gray-900 dark:border-gray-600 text-gray-900 dark:text-white rounded-full font-bold hover:bg-gray-900 hover:text-white dark:hover:bg-indigo-600 dark:hover:border-indigo-600 transition-all"
           >
             <Instagram size={20} />
             Follow Us
