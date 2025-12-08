@@ -5,7 +5,7 @@
           {/* Brand Info */}
           <div className="space-y-4">
             <img 
-              src="/logo-white.png" 
+              src="/logo-white.png"/>
             <h3 className="font-bold text-white mb-6">Shop</h3>
             <ul className="space-y-3 text-sm text-gray-400">
               <li><Link to="/shop" className="hover:text-white transition-colors">All Watches</Link></li>
