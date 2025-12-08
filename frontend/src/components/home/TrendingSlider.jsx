@@ -106,7 +106,7 @@ const TrendingSlider = () => {
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="p-4 bg-white dark:bg-gray-800">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{product.category}</p>
                   <Link to={`/product/${product.id}`}>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">

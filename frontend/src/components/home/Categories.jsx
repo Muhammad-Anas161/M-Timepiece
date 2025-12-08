@@ -34,7 +34,7 @@ const categories = [
   {
     id: 5,
     name: "Digital & LED",
-    image: "https://images.unsplash.com/photo-1557531383-a69888d31327?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1612101678636-69a6daeb076e?q=80&w=411&auto=format&fit=crop",
     link: "/shop?category=Digital",
     size: "small"
   }
