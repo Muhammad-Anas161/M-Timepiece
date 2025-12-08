@@ -93,7 +93,7 @@ const ProductDetails = () => {
           <ol role="list" className="flex items-center space-x-4">
             <li>
               <div className="flex items-center">
-                <Link to="/" className="mr-4 text-sm font-medium text-gray-900 hover:text-indigo-600">
+                <Link to="/" className="mr-4 text-sm font-medium text-gray-900 dark:text-white hover:text-indigo-600">
                   Home
                 </Link>
                 <svg viewBox="0 0 6 20" aria-hidden="true" className="h-5 w-auto text-gray-300">
@@ -102,7 +102,7 @@ const ProductDetails = () => {
               </div>
             </li>
             <li className="text-sm">
-              <Link to="/shop" className="mr-4 text-sm font-medium text-gray-500 hover:text-gray-600">
+              <Link to="/shop" className="mr-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-600">
                 Shop
               </Link>
               <svg viewBox="0 0 6 20" aria-hidden="true" className="h-5 w-auto text-gray-300 inline">
@@ -110,7 +110,7 @@ const ProductDetails = () => {
               </svg>
             </li>
             <li className="text-sm">
-              <span className="font-medium text-gray-500">{product.name}</span>
+              <span className="font-medium text-gray-500 dark:text-gray-400">{product.name}</span>
             </li>
           </ol>
         </nav>
