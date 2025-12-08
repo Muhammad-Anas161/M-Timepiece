@@ -65,6 +65,19 @@ const TrendingSlider = () => {
             768: { slidesPerView: 3 },
             1024: { slidesPerView: 4 },
           }}
+          className="pb-12"
+        >
+          {products.map((product) => (
+            <SwiperSlide key={product.id}>
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group h-full"
+              >
+                <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                  <img 
+                    src={product.image || 'https://via.placeholder.com/400x500'} 
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   
                   {/* Overlay Actions */}
