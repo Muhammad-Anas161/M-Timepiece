@@ -120,18 +120,18 @@ const ProductDetails = () => {
             <div className="lg:col-span-5 lg:col-start-8">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-gray-500 uppercase tracking-wide">{product.category}</p>
-                  <h1 className="text-3xl font-bold tracking-tight text-gray-900 mt-1">{product.name}</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{product.category}</p>
+                  <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mt-1">{product.name}</h1>
                 </div>
               </div>
               
               <div className="mt-4 flex items-center gap-4">
-                <p className="text-3xl font-bold text-gray-900">{formatPrice(currentPrice)}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatPrice(currentPrice)}</p>
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
                   ))}
-                  <span className="text-sm text-gray-500 ml-2">(4.5)</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">(4.5)</span>
                 </div>
               </div>
 
@@ -150,7 +150,7 @@ const ProductDetails = () => {
               {/* Variants Selector */}
               {product.variants && product.variants.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="text-sm font-medium text-gray-900">Color</h3>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">Color</h3>
                   <div className="flex items-center space-x-3 mt-2">
                     {product.variants.map((variant) => (
                       <button
@@ -169,7 +169,7 @@ const ProductDetails = () => {
                          )}
                       </button>
                     ))}
-                    <span className="text-sm text-gray-500 ml-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
                       {selectedVariant ? selectedVariant.color : 'Select a color'}
                     </span>
                   </div>

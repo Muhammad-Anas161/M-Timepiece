@@ -57,7 +57,7 @@ const Checkout = () => {
       // Unified Success Handler
       if (paymentMethod === 'COD/WhatsApp') {
         const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nAddress: ${formData.street}, ${formData.city}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
-        const whatsappUrl = `https://wa.me/03123637833?text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
         
         toast.success('Order placed! Opening WhatsApp for confirmation...');
         window.open(whatsappUrl, '_blank');
