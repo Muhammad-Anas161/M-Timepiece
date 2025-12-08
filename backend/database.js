@@ -19,6 +19,7 @@ db.serialize(() => {
     username TEXT UNIQUE,
     email TEXT UNIQUE,
     password TEXT,
+    role TEXT DEFAULT 'user',
     loyalty_points INTEGER DEFAULT 0
   )`, (err) => {
     if (err) console.error("Error creating users table:", err.message);
@@ -218,6 +219,11 @@ db.serialize(() => {
     else console.log("Loyalty History table verified/created");
   });
 
+  // Ensure 'role' exists in users (Migration)
+  db.run("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (users.role):", err.message);
+  });
+
   // Seed Admin User
   const adminPassword = 'password123';
   const salt = bcrypt.genSaltSync(10);
@@ -225,8 +231,14 @@ db.serialize(() => {
 
   db.get("SELECT * FROM users WHERE username = ?", ['admin'], (err, row) => {
     if (!row) {
-      db.run("INSERT INTO users (username, password) VALUES (?, ?)", ['admin', hash]);
+      db.run("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')", ['admin', hash]);
       console.log("Admin user created: admin / password123");
+    } else {
+      // Ensure existing admin has admin role
+      if (row.role !== 'admin') {
+        db.run("UPDATE users SET role = 'admin' WHERE username = ?", ['admin']);
+        console.log("Updated existing admin user to have admin role");
+      }
     }
   });
 
