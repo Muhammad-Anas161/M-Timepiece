@@ -199,20 +199,20 @@ const ProductDetails = () => {
               <form>
                 {/* Quantity Selector */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity</label>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                      className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-white"
                     >
                       -
                     </button>
-                    <span className="text-lg font-medium w-12 text-center">{quantity}</span>
+                    <span className="text-lg font-medium w-12 text-center dark:text-white">{quantity}</span>
                     <button
                       type="button"
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+                      className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-white"
                     >
                       +
                     </button>
@@ -235,36 +235,36 @@ const ProductDetails = () => {
 
               {/* Product details */}
               <div className="mt-10">
-                <h2 className="text-sm font-medium text-gray-900">Description</h2>
-                <div className="prose prose-sm mt-4 text-gray-500">
+                <h2 className="text-sm font-medium text-gray-900 dark:text-white">Description</h2>
+                <div className="prose prose-sm mt-4 text-gray-500 dark:text-gray-400">
                   <p>{product.description}</p>
                 </div>
               </div>
 
               {/* Specifications Table */}
-              <div className="mt-8 border-t border-gray-200 pt-8">
-                <h2 className="text-sm font-medium text-gray-900 mb-4">Specifications</h2>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <dl className="divide-y divide-gray-200">
+              <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8">
+                <h2 className="text-sm font-medium text-gray-900 dark:text-white mb-4">Specifications</h2>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                  <dl className="divide-y divide-gray-200 dark:divide-gray-700">
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Brand</dt>
-                      <dd className="text-sm font-medium text-gray-900">{product.brand || 'M Timepiece'}</dd>
+                      <dd className="text-sm font-medium text-gray-900 dark:text-white">{product.brand || 'M Timepiece'}</dd>
                     </div>
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Category</dt>
-                      <dd className="text-sm font-medium text-gray-900">{product.category}</dd>
+                      <dd className="text-sm font-medium text-gray-900 dark:text-white">{product.category}</dd>
                     </div>
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Material</dt>
-                      <dd className="text-sm font-medium text-gray-900">{product.material || 'Stainless Steel'}</dd>
+                      <dd className="text-sm font-medium text-gray-900 dark:text-white">{product.material || 'Stainless Steel'}</dd>
                     </div>
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Water Resistance</dt>
-                      <dd className="text-sm font-medium text-gray-900">{product.waterResistance || '3 ATM'}</dd>
+                      <dd className="text-sm font-medium text-gray-900 dark:text-white">{product.waterResistance || '3 ATM'}</dd>
                     </div>
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Movement</dt>
-                      <dd className="text-sm font-medium text-gray-900">{product.movement || 'Quartz'}</dd>
+                      <dd className="text-sm font-medium text-gray-900 dark:text-white">{product.movement || 'Quartz'}</dd>
                     </div>
                   </dl>
                 </div>
@@ -272,9 +272,9 @@ const ProductDetails = () => {
 
               {/* Features */}
               {product.features && (
-                <div className="mt-8 border-t border-gray-200 pt-8">
-                  <h2 className="text-sm font-medium text-gray-900">Features</h2>
-                  <div className="prose prose-sm mt-4 text-gray-500">
+                <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8">
+                  <h2 className="text-sm font-medium text-gray-900 dark:text-white">Features</h2>
+                  <div className="prose prose-sm mt-4 text-gray-500 dark:text-gray-400">
                     <ul role="list">
                       {(Array.isArray(product.features) ? product.features : product.features.split('\n')).map((feature, idx) => (
                         <li key={idx}>{feature.trim()}</li>
@@ -291,19 +291,19 @@ const ProductDetails = () => {
                 </h2>
 
                 <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-6 text-center">
                     <dt>
                       <Truck className="mx-auto h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                      <span className="mt-4 text-sm font-medium text-gray-900">Fast Delivery</span>
+                      <span className="mt-4 text-sm font-medium text-gray-900 dark:text-white">Fast Delivery</span>
                     </dt>
-                    <dd className="mt-1 text-sm text-gray-500">Nationwide shipping available</dd>
+                    <dd className="mt-1 text-sm text-gray-500 dark:text-gray-400">Nationwide shipping available</dd>
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-6 text-center">
                     <dt>
                       <Shield className="mx-auto h-6 w-6 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                      <span className="mt-4 text-sm font-medium text-gray-900">7-Day Return</span>
+                      <span className="mt-4 text-sm font-medium text-gray-900 dark:text-white">7-Day Return</span>
                     </dt>
-                    <dd className="mt-1 text-sm text-gray-500">For defective items only</dd>
+                    <dd className="mt-1 text-sm text-gray-500 dark:text-gray-400">For defective items only</dd>
                   </div>
                 </dl>
               </section>
