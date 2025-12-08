@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageCircle } from 'lucide-react';
 
 const WhatsAppButton = () => {
-  const phoneNumber = '923171067090'; // M Timepiece WhatsApp
+  const phoneNumber = '923123637833'; // M Timepiece WhatsApp
   const message = 'Hi! I have a question about M Timepiece watches.';
   
   const handleClick = () => {
@@ -20,7 +20,7 @@ const WhatsAppButton = () => {
       
       {/* Tooltip */}
       <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        923123637833
+        Chat with us on WhatsApp
       </span>
       
       {/* Pulse animation */}
