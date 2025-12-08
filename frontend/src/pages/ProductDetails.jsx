@@ -225,7 +225,7 @@ const ProductDetails = () => {
                   disabled={displayStock === 0}
                   className={`flex w-full items-center justify-center rounded-md border border-transparent px-8 py-3 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                     displayStock > 0 
-                      ? 'bg-gray-900 hover:bg-gray-800 focus:ring-gray-500' 
+                      ? 'bg-gray-900 hover:bg-gray-800 focus:ring-gray-500 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-500' 
                       : 'bg-gray-400 cursor-not-allowed'
                   }`}
                 >
