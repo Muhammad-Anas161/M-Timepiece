@@ -12,9 +12,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const success = await login(username, password);
-    if (success) {
-      navigate('/admin');
+    const response = await login(username, password);
+    if (response && response.user) {
+      if (response.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/user');
+      }
     } else {
       setError('Invalid username or password');
     }
