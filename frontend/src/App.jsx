@@ -148,11 +148,8 @@ function App() {
             </Route>
 
             {/* Admin Routes - Protected by Role */}
-            <Route path="/admin" element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }>
+            <Route element={<ProtectedRoute requireAdmin={true} />}>
+              <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Analytics />} />
                 <Route path="products" element={<ProductList />} />
                 <Route path="products/new" element={<ProductForm />} />
