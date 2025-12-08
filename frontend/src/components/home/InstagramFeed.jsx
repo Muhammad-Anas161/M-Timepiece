@@ -25,32 +25,12 @@ const posts = [
   },
   {
     id: 5,
-    image: "https://images.unsplash.com/photo-1434056838489-293029c62689?q=80&w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=500&auto=format&fit=crop",
     link: "#"
   },
   {
     id: 6,
     image: "https://images.unsplash.com/photo-1539874754764-5a96559165b0?q=80&w=600&auto=format&fit=crop",
-    link: "#"
-  }
-];
-
-const InstagramFeed = () => {
-  return (
-    <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center mb-12">
-          <div className="p-3 bg-pink-50 text-pink-600 rounded-full mb-4">
-            <Instagram size={32} />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Follow Us on Instagram</h2>
-          <p className="text-gray-500 mt-2">@m_timepiece1</p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-          {posts.map((post) => (
-            <motion.a
-              key={post.id}
               href="https://www.instagram.com/m_timepiece1/"
               target="_blank"
               rel="noopener noreferrer"

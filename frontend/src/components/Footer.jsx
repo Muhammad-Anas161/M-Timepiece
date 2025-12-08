@@ -1,11 +1,3 @@
-import React from 'react';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
-
-const Footer = () => {
-  const { theme } = useTheme();
-
   return (
     <footer className="bg-gray-900 border-t border-gray-800 pt-16 pb-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,30 +6,6 @@ const Footer = () => {
           <div className="space-y-4">
             <img 
               src="/logo-white.png" 
-              alt="M Timepiece" 
-              className="h-10 w-auto text-white" 
-            />
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Crafting moments into memories with distinct elegance and timeless precision.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin size={20} />
-              </a>
-            </div>
-          </div>
-
-          {/* Links */}
-          <div>
             <h3 className="font-bold text-white mb-6">Shop</h3>
             <ul className="space-y-3 text-sm text-gray-400">
               <li><Link to="/shop" className="hover:text-white transition-colors">All Watches</Link></li>
