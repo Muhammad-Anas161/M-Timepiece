@@ -14,7 +14,9 @@ const Login = () => {
     setError('');
     const response = await login(username, password);
     if (response && response.user) {
-      if (response.user.role === 'admin') {
+      // Case-insensitive check for admin role
+      const role = response.user.role ? response.user.role.toLowerCase() : 'user';
+      if (role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/user');
@@ -29,7 +31,7 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Admin Dashboard
+            Sign in to your account
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
