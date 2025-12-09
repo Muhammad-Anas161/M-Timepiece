@@ -12,7 +12,7 @@ const ProtectedRoute = ({ requireAdmin }) => {
   const userRole = user.role ? user.role.toLowerCase() : 'user';
 
   if (requireAdmin && userRole !== 'admin') {
-    return <Navigate to="/user" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
