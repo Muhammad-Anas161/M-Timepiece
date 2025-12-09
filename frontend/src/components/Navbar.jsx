@@ -76,12 +76,8 @@ const Navbar = () => {
               </button>
             )}
             
-            {user ? (
+            {user && (
               <Link to="/admin" className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                <User size={20} />
-              </Link>
-            ) : (
-              <Link to="/login" className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <User size={20} />
               </Link>
             )}
