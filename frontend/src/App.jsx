@@ -37,6 +37,8 @@ const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 // const UserLayout = lazy(() => import('./layouts/UserLayout'));
 // ... other user pages removed
 
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+
 // const Register = lazy(() => import('./pages/Register'));
 
 // Loading Fallback
