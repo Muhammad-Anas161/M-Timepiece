@@ -33,15 +33,11 @@ const Contact = lazy(() => import('./pages/Contact'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 
-// User Pages
-const UserLayout = lazy(() => import('./layouts/UserLayout'));
-const UserDashboard = lazy(() => import('./pages/user/Dashboard'));
-const Orders = lazy(() => import('./pages/user/Orders'));
-const Profile = lazy(() => import('./pages/user/Profile'));
-const Wishlist = lazy(() => import('./pages/user/Wishlist'));
-const LoyaltyPoints = lazy(() => import('./pages/user/LoyaltyPoints'));
-const OrderTracking = lazy(() => import('./pages/OrderTracking'));
-const Register = lazy(() => import('./pages/Register'));
+// User Pages Removed
+// const UserLayout = lazy(() => import('./layouts/UserLayout'));
+// ... other user pages removed
+
+// const Register = lazy(() => import('./pages/Register'));
 
 // Loading Fallback
 const PageLoader = () => (
@@ -136,16 +132,14 @@ function App() {
                 <Footer />
               </>
             } />
-            <Route path="/register" element={<><SEO title="Register" /><Register /></>} />
-
-            {/* User Routes */}
-            <Route path="/user" element={<UserLayout />}>
+            {/* User Routes Removed */}
+             {/* <Route path="/user" element={<UserLayout />}>
               <Route index element={<UserDashboard />} />
               <Route path="orders" element={<Orders />} />
               <Route path="profile" element={<Profile />} />
               <Route path="wishlist" element={<Wishlist />} />
               <Route path="loyalty" element={<LoyaltyPoints />} />
-            </Route>
+            </Route> */}
 
             {/* Admin Routes - Protected by Role */}
             <Route element={<ProtectedRoute requireAdmin={true} />}>

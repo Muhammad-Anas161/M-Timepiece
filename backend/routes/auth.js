@@ -43,6 +43,8 @@ router.post('/login', [
   });
 });
 
+// Registration Disabled
+/*
 router.post('/register', [
   body('username').isString().trim().notEmpty(),
   body('email').isEmail().normalizeEmail(),
@@ -82,5 +84,6 @@ router.post('/register', [
     }
   );
 });
+*/
 
 export default router;

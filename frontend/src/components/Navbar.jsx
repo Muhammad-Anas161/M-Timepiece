@@ -77,7 +77,7 @@ const Navbar = () => {
             )}
             
             {user ? (
-              <Link to={user.role === 'admin' ? "/admin" : "/user"} className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <Link to="/admin" className="text-gray-900 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <User size={20} />
               </Link>
             ) : (

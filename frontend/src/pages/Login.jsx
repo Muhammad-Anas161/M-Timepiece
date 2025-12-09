@@ -19,7 +19,7 @@ const Login = () => {
       if (role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/user');
+        setError('Access denied. Administrators only.');
       }
     } else {
       setError('Invalid username or password');
@@ -75,11 +75,6 @@ const Login = () => {
             >
               Sign in
             </button>
-            <div className="mt-6 text-center">
-              <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Don't have an account? Sign up
-              </Link>
-            </div>
           </div>
         </form>
       </div>
