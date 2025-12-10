@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET_KEY = 'your-secret-key'; // In production, match this with process.env.JWT_SECRET
+const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // Fallback for dev only
 
 export const verifyToken = (req, res, next) => {
   const token = req.headers['authorization'];

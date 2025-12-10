@@ -225,7 +225,7 @@ db.serialize(() => {
   });
 
   // Seed Admin User
-  const adminPassword = 'password123';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'password123';
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(adminPassword, salt);
 

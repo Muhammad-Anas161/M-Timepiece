@@ -5,7 +5,7 @@ import db from '../database.js';
 import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
-const SECRET_KEY = 'your-secret-key'; // In production, use environment variable
+const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // Fallback for dev only
 
 router.post('/login', [
   body('username').isString().trim().notEmpty(),

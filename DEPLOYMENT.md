@@ -36,13 +36,16 @@ npm run install:all
 VITE_API_URL=http://localhost:3000
 ```
 
+### 3. Run Development Servers
+(Note: These are examples. Create a `.env` file with secure values for production)
+
 **Backend** (`backend/.env`):
 ```env
 PORT=3000
 NODE_ENV=development
-JWT_SECRET=your-secret-key-here
+JWT_SECRET=dev-secret-key-change-in-prod
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=password123
+ADMIN_PASSWORD=change_me_in_prod
 FRONTEND_URL=http://localhost:5173
 DB_PATH=./database.sqlite
 ```
