@@ -20,8 +20,13 @@ const ProductList = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      await deleteProduct(id);
-      fetchProducts();
+      try {
+        await deleteProduct(id);
+        fetchProducts();
+      } catch (error) {
+        console.error("Delete failed:", error);
+        alert(`Failed to delete product: ${error.message}`);
+      }
     }
   };
 
