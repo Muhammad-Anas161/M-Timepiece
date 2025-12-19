@@ -203,14 +203,29 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
         if (!err) {
           const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier, image) VALUES (?, ?, ?, ?, ?, ?)');
           
+          
+          // Debugging log
+          console.log('Processing variants update:', JSON.stringify(variants, null, 2));
+
           variants.forEach((v, index) => {
              // Check if new file uploaded for this variant
              const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
-             let finalVariantImage = v.image || null; // Accessing v.image assuming frontend sends it back for existing images
+             
+             // Explicit logic: 
+             // 1. If file uploaded -> use file URL
+             // 2. Else if v.image is present (and not empty) -> keep it
+             // 3. Else (v.image is empty/null/undefined) -> set to NULL
+             
+             let finalVariantImage = null;
 
              if (variantFile) {
                finalVariantImage = `${baseUrl}${variantFile.filename}`;
+             } else if (v.image && v.image.trim() !== '') {
+               finalVariantImage = v.image;
              }
+
+             // Log to confirm what's being inserted
+             console.log(`Variant ${index} image: ${finalVariantImage}`);
 
             stmt.run(req.params.id, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0, finalVariantImage);
           });
