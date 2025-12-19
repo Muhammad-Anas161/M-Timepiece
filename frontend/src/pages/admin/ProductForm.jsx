@@ -84,6 +84,8 @@ const ProductForm = () => {
     // Append variants as JSON string (metadata only)
     // We send the variants JSON. Note: imageFile objects are stripped by JSON.stringify anyway, 
     // but we need to ensure we send the 'image' URL if it exists (for edits)
+    // We send the variants JSON.
+    // If image is cleared in UI (variant.image is empty), it will represent removal if we handle it in backend.
     data.append('variants', JSON.stringify(variants.map(v => ({
       ...v,
       imageFile: undefined // distinct file upload, not in JSON
@@ -252,6 +254,14 @@ const ProductForm = () => {
                             <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border">
                                 <span className="text-xs text-gray-500">Current:</span>
                                 <img src={variant.image} alt={variant.color} className="h-8 w-8 object-cover rounded" />
+                                <button
+                                  type="button"
+                                  onClick={() => handleVariantChange(index, 'image', '')}
+                                  className="text-red-500 hover:text-red-700 ml-1"
+                                  title="Remove Image"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
                             </div>
                          )}
                       </div>
