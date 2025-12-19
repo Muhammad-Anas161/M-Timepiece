@@ -55,7 +55,7 @@ const ProductForm = () => {
 
   // Variant Handlers
   const addVariant = () => {
-    setVariants([...variants, { color: '', color_code: '#000000', stock: 0, price_modifier: 0 }]);
+    setVariants([...variants, { color: '', color_code: '#000000', stock: 0, price_modifier: 0, imageFile: null, image: '' }]);
   };
 
   const removeVariant = (index) => {
@@ -81,8 +81,20 @@ const ProductForm = () => {
     data.append('features', formData.features);
     data.append('category', formData.category);
     
-    // Append variants as JSON string
-    data.append('variants', JSON.stringify(variants));
+    // Append variants as JSON string (metadata only)
+    // We send the variants JSON. Note: imageFile objects are stripped by JSON.stringify anyway, 
+    // but we need to ensure we send the 'image' URL if it exists (for edits)
+    data.append('variants', JSON.stringify(variants.map(v => ({
+      ...v,
+      imageFile: undefined // distinct file upload, not in JSON
+    }))));
+    
+    // Append variant images with specific keys
+    variants.forEach((variant, index) => {
+        if (variant.imageFile) {
+            data.append(`variant_image_${index}`, variant.imageFile);
+        }
+    });
     
     if (imageFile) {
       data.append('image', imageFile);
@@ -181,51 +193,77 @@ const ProductForm = () => {
           ) : (
             <div className="space-y-3">
               {variants.map((variant, index) => (
-                <div key={index} className="flex flex-wrap items-end gap-3 bg-gray-50 p-3 rounded-md border border-gray-200">
-                  <div className="flex-1 min-w-[150px]">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Color Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Midnight Blue"
-                      value={variant.color}
-                      onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-1"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Color Code</label>
-                    <div className="flex items-center gap-2">
+                <div key={index} className="bg-gray-50 p-4 rounded-md border border-gray-200 relative">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Color Name</label>
                       <input
-                        type="color"
-                        value={variant.color_code}
-                        onChange={(e) => handleVariantChange(index, 'color_code', e.target.value)}
-                        className="h-8 w-8 p-0 border-0 rounded cursor-pointer"
+                        type="text"
+                        placeholder="e.g. Midnight Blue"
+                        value={variant.color}
+                        onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
                       />
-                      <span className="text-xs text-gray-500">{variant.color_code}</span>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Color Code</label>
+                      <div className="flex items-center gap-2 h-9">
+                        <input
+                          type="color"
+                          value={variant.color_code}
+                          onChange={(e) => handleVariantChange(index, 'color_code', e.target.value)}
+                          className="h-8 w-8 p-0 border-0 rounded cursor-pointer"
+                        />
+                        <span className="text-xs text-gray-500">{variant.color_code}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Stock</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={variant.stock}
+                        onChange={(e) => handleVariantChange(index, 'stock', parseInt(e.target.value) || 0)}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
+                      />
+                    </div>
+                    <div>
+                       <label className="block text-xs font-medium text-gray-500 mb-1">Price Modifier (+/-)</label>
+                       <input
+                        type="number"
+                        step="0.01"
+                        value={variant.price_modifier}
+                        onChange={(e) => handleVariantChange(index, 'price_modifier', parseFloat(e.target.value) || 0)}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
+                      />
                     </div>
                   </div>
-                  <div className="w-24">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Stock</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={variant.stock}
-                      onChange={(e) => handleVariantChange(index, 'stock', parseInt(e.target.value) || 0)}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-1"
-                    />
-                  </div>
-                  <div className="w-28">
-                     <label className="block text-xs font-medium text-gray-500 mb-1">Price (+/-)</label>
-                     <input
-                      type="number"
-                      step="0.01"
-                      value={variant.price_modifier}
-                      onChange={(e) => handleVariantChange(index, 'price_modifier', parseFloat(e.target.value) || 0)}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-1"
-                    />
-                  </div>
-                  <button type="button" onClick={() => removeVariant(index)} className="text-red-600 hover:text-red-800 p-1">
-                    <Trash2 size={18} />
+                  
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Variant Image (Required)</label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleVariantChange(index, 'imageFile', e.target.files[0])}
+                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        />
+                         {variant.image && !variant.imageFile && (
+                            <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border">
+                                <span className="text-xs text-gray-500">Current:</span>
+                                <img src={variant.image} alt={variant.color} className="h-8 w-8 object-cover rounded" />
+                            </div>
+                         )}
+                      </div>
+                   </div>
+
+                  <button 
+                    type="button" 
+                    onClick={() => removeVariant(index)} 
+                    className="absolute top-2 right-2 text-red-600 hover:text-red-800 p-1 bg-white rounded-full shadow-sm"
+                    title="Remove Variant"
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </div>
               ))}

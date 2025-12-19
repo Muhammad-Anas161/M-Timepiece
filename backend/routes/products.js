@@ -80,65 +80,83 @@ router.get('/:id', (req, res) => {
 import { verifyToken, isAdmin } from '../middleware/auth.js';
 
 // Create product with variants (Protected)
-router.post('/', verifyToken, isAdmin, upload.single('image'), [
+router.post('/', verifyToken, isAdmin, upload.any(), [
   body('name').isString().notEmpty(),
   body('price').isFloat({ min: 0 }),
   body('description').isString(),
   body('category').isString().notEmpty()
-  // variants is passed as a JSON string field 'variants'
 ], (req, res) => {
-  // ... existing implementation
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Clean up uploaded files if validation fails
+    if (req.files) {
+      req.files.forEach(file => fs.unlinkSync(file.path));
+    }
     return res.status(400).json({ errors: errors.array() });
   }
 
   const { name, price, description, category } = req.body;
+  
   let variants = [];
   try {
     variants = req.body.variants ? JSON.parse(req.body.variants) : [];
   } catch (e) {
-    // Ignore parse error, empty variants
+    console.error('Error parsing variants JSON:', e);
   }
 
-  let image = '';
-  if (req.file) {
-    // Force HTTPS in production/railway env, fallback to request protocol
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
-    const host = req.get('host');
-    image = `${protocol}://${host}/uploads/${req.file.filename}`;
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+  const host = req.get('host');
+  const baseUrl = `${protocol}://${host}/uploads/`;
+
+  let mainImage = '';
+  const mainImageFile = req.files.find(f => f.fieldname === 'image');
+  if (mainImageFile) {
+    mainImage = `${baseUrl}${mainImageFile.filename}`;
   }
 
   db.run('INSERT INTO products (name, price, description, image, category) VALUES (?, ?, ?, ?, ?)', 
-    [name, price, description, image, category], 
+    [name, price, description, mainImage, category], 
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
       const productId = this.lastID;
 
       // Insert variants if any
       if (variants.length > 0) {
-        const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier) VALUES (?, ?, ?, ?, ?)');
-        variants.forEach(v => {
-          stmt.run(productId, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0);
+        const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier, image) VALUES (?, ?, ?, ?, ?, ?)');
+        
+        variants.forEach((v, index) => {
+          // Check for variant image in uploaded files
+          // The frontend should send variant images with fieldname 'variant_image_{index}'
+          // OR we match by some other convention if strictly ordered. 
+          // Using fieldname convention 'variant_image_INDEX' is safest.
+          const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
+          let variantImageUrl = null;
+          if (variantFile) {
+            variantImageUrl = `${baseUrl}${variantFile.filename}`;
+          }
+
+          stmt.run(productId, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0, variantImageUrl);
         });
         stmt.finalize();
       }
 
-      res.json({ id: productId, name, price, description, image, category, variants });
+      res.json({ id: productId, name, price, description, image: mainImage, category, variants });
     }
   );
 });
 
 // Update product and variants (Protected)
-router.put('/:id', verifyToken, isAdmin, upload.single('image'), [
+router.put('/:id', verifyToken, isAdmin, upload.any(), [
   body('name').optional().isString().notEmpty(),
   body('price').optional().isFloat({ min: 0 }),
   body('description').optional().isString(),
   body('category').optional().isString().notEmpty()
 ], (req, res) => {
-  // ... existing implementation
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+     if (req.files) {
+      req.files.forEach(file => fs.unlinkSync(file.path));
+    }
     return res.status(400).json({ errors: errors.array() });
   }
 
@@ -148,11 +166,14 @@ router.put('/:id', verifyToken, isAdmin, upload.single('image'), [
     variants = req.body.variants ? JSON.parse(req.body.variants) : [];
   } catch (e) {}
 
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+  const host = req.get('host');
+  const baseUrl = `${protocol}://${host}/uploads/`;
+
   let image = undefined;
-  if (req.file) {
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
-    const host = req.get('host');
-    image = `${protocol}://${host}/uploads/${req.file.filename}`;
+  const mainImageFile = req.files.find(f => f.fieldname === 'image');
+  if (mainImageFile) {
+    image = `${baseUrl}${mainImageFile.filename}`;
   }
 
   let query = 'UPDATE products SET name = COALESCE(?, name), price = COALESCE(?, price), description = COALESCE(?, description), category = COALESCE(?, category)';
@@ -161,6 +182,11 @@ router.put('/:id', verifyToken, isAdmin, upload.single('image'), [
   if (image) {
     query += ', image = ?';
     params.push(image);
+  } else if (req.body.imageUrl) {
+     // If no new file but imageUrl is provided (retaining old image), we don't need to update the column unless we want to explicit set it. 
+     // However, the standard usually is: if file provided, update. If not, keep old. 
+     // The frontend might explicitly send `imageUrl` to confirm the existing one not changed, but SQL `COALESCE` or just not updating it does the job.
+     // In this specific logic: params.push(image) only if image is defined. 
   }
 
   query += ' WHERE id = ?';
@@ -170,12 +196,23 @@ router.put('/:id', verifyToken, isAdmin, upload.single('image'), [
     if (err) return res.status(500).json({ error: err.message });
     
     // Update variants: Delete all and re-insert (simplest strategy)
+    // IMPORTANT: We need to preserve existing variant images if they are not being replaced.
+    // Since we delete and re-insert, the frontend MUST send the existing variant image URL back if it hasn't changed.
     if (variants.length > 0) {
       db.run('DELETE FROM product_variants WHERE product_id = ?', [req.params.id], (err) => {
         if (!err) {
-          const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier) VALUES (?, ?, ?, ?, ?)');
-          variants.forEach(v => {
-            stmt.run(req.params.id, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0);
+          const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier, image) VALUES (?, ?, ?, ?, ?, ?)');
+          
+          variants.forEach((v, index) => {
+             // Check if new file uploaded for this variant
+             const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
+             let finalVariantImage = v.image || null; // Accessing v.image assuming frontend sends it back for existing images
+
+             if (variantFile) {
+               finalVariantImage = `${baseUrl}${variantFile.filename}`;
+             }
+
+            stmt.run(req.params.id, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0, finalVariantImage);
           });
           stmt.finalize();
         }

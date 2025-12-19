@@ -141,6 +141,11 @@ db.serialize(() => {
     if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (users.loyalty_points):", err.message);
   });
 
+  // Ensure 'image' exists in product_variants
+  db.run("ALTER TABLE product_variants ADD COLUMN image TEXT", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (product_variants.image):", err.message);
+  });
+
   // Schema Fix: Ensure reviews table has new columns (for existing databases)
   const reviewColumns = ['user_email', 'title', 'verified_purchase'];
   reviewColumns.forEach(col => {

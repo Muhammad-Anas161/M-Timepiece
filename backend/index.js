@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import compression from 'compression';
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +36,7 @@ app.use(cors({
   credentials: false // No cookies used, safer for wildcard origin
 }));
 app.use(express.json());
+app.use(compression());
 
 // Static files for uploads
 // Static files for uploads
@@ -47,7 +49,10 @@ const uploadsDir = isRailwayVolume
 if (!fs.existsSync(uploadsDir)){
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(uploadsDir, {
+  maxAge: '7d', // Cache for 7 days
+  immutable: true // File content won't change
+}));
 
 // Routes
 app.use('/api/auth', authRoutes);

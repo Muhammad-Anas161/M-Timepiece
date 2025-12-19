@@ -15,6 +15,7 @@ const ProductDetails = () => {
   const [isZoomed, setIsZoomed] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [currentImage, setCurrentImage] = useState('');
   
   const { addToCart } = useCart();
   const { formatPrice } = usePrice();
@@ -29,6 +30,9 @@ const ProductDetails = () => {
         // Auto-select first variant if available
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);
+          setCurrentImage(data.variants[0].image || data.image);
+        } else {
+          setCurrentImage(data.image);
         }
       } catch (err) {
         setError(err.message);
@@ -155,7 +159,10 @@ const ProductDetails = () => {
                     {product.variants.map((variant) => (
                       <button
                         key={variant.id}
-                        onClick={() => setSelectedVariant(variant)}
+                        onClick={() => {
+                          setSelectedVariant(variant);
+                          if (variant.image) setCurrentImage(variant.image);
+                        }}
                         className={`relative w-8 h-8 rounded-full focus:outline-none ring-2 ring-offset-2 ${
                           selectedVariant && selectedVariant.id === variant.id ? 'ring-indigo-500' : 'ring-transparent border border-gray-200'
                         }`}
@@ -181,16 +188,49 @@ const ProductDetails = () => {
             {/* Image Gallery with Zoom */}
             <div className="mt-8 lg:col-span-7 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0">
               <h2 className="sr-only">Images</h2>
-              <div className="relative group aspect-square lg:aspect-auto lg:h-[600px] bg-gray-100 rounded-lg overflow-hidden">
-                <img
-                  src={product.image || 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80'}
-                  alt={product.name}
-                  className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300"
-                  onClick={() => setIsZoomed(true)}
-                  onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80'; }}
-                />
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <ZoomIn size={20} className="text-gray-700" />
+              <div class="flex flex-col-reverse lg:flex-row gap-4">
+                {/* Thumbnails */}
+                 <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] scrollbar-hide">
+                    {/* Main Image Thumbnail */}
+                    <button
+                      onClick={() => {
+                        setCurrentImage(product.image);
+                        setSelectedVariant(null);
+                      }}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === product.image ? 'border-indigo-500' : 'border-transparent'}`}
+                    >
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
+                    </button>
+                    
+                    {/* Variant Thumbnails */}
+                    {product.variants && product.variants.map((v) => (
+                      v.image && (
+                        <button
+                          key={v.id}
+                          onClick={() => {
+                            setCurrentImage(v.image);
+                            setSelectedVariant(v);
+                          }}
+                          className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === v.image ? 'border-indigo-500' : 'border-transparent'}`}
+                        >
+                          <img src={v.image} alt={v.color} className="w-full h-full object-cover" loading="lazy" />
+                        </button>
+                      )
+                    ))}
+                 </div>
+
+                <div className="relative group flex-1 aspect-square lg:aspect-auto lg:h-[600px] bg-gray-100 rounded-lg overflow-hidden">
+                  <img
+                    src={currentImage || product.image || 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80'}
+                    alt={product.name}
+                    className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300"
+                    onClick={() => setIsZoomed(true)}
+                    loading="lazy"
+                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80'; }}
+                  />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <ZoomIn size={20} className="text-gray-700" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -325,7 +365,7 @@ const ProductDetails = () => {
           onClick={() => setIsZoomed(false)}
         >
           <img
-            src={product.image}
+            src={currentImage}
             alt={product.name}
             className="max-w-full max-h-full object-contain"
           />
