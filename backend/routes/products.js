@@ -196,13 +196,17 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     if (err) return res.status(500).json({ error: err.message });
     
     // Update variants: Delete all and re-insert (simplest strategy)
-    // IMPORTANT: We need to preserve existing variant images if they are not being replaced.
-    // Since we delete and re-insert, the frontend MUST send the existing variant image URL back if it hasn't changed.
-    if (variants.length > 0) {
-      db.run('DELETE FROM product_variants WHERE product_id = ?', [req.params.id], (err) => {
-        if (!err) {
+    // IMPORTANT: We must perform DELETE even if variants.length is 0 (to allow clearing all variants)
+    db.run('DELETE FROM product_variants WHERE product_id = ?', [req.params.id], (err) => {
+      if (err) {
+        console.error("Error deleting old variants:", err.message);
+        // We continue? or fail? Failsafe: continue to at least update product info, but ideally warn.
+        // For now, let's log.
+      } else {
+        console.log(`Cleared variants for product ${req.params.id}`);
+        
+        if (variants.length > 0) {
           const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier, image) VALUES (?, ?, ?, ?, ?, ?)');
-          
           
           // Debugging log
           console.log('Processing variants update:', JSON.stringify(variants, null, 2));
@@ -212,10 +216,6 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
              const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
              
              // Explicit logic: 
-             // 1. If file uploaded -> use file URL
-             // 2. Else if v.image is present (and not empty) -> keep it
-             // 3. Else (v.image is empty/null/undefined) -> set to NULL
-             
              let finalVariantImage = null;
 
              if (variantFile) {
@@ -231,8 +231,8 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
           });
           stmt.finalize();
         }
-      });
-    }
+      }
+    });
 
     res.json({ message: 'Product updated' });
   });
