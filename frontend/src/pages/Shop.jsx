@@ -20,6 +20,7 @@ const Shop = () => {
   // Filter States
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedBrands, setSelectedBrands] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortBy, setSortBy] = useState('newest');
 
@@ -55,6 +56,13 @@ const Shop = () => {
     return Array.from(cats).sort();
   }, [products]);
 
+  // Derived Data: Unique Brands
+  const allBrands = useMemo(() => {
+    // Filter out null/undefined brands and default 'M Timepiece' if desired, or keep all
+    const brands = new Set(products.map(p => p.brand).filter(Boolean));
+    return Array.from(brands).sort();
+  }, [products]);
+
   // Filtering Logic
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -65,6 +73,11 @@ const Shop = () => {
 
       // Category Filter
       if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
+        return false;
+      }
+
+      // Brand Filter
+      if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand)) {
         return false;
       }
 
@@ -85,7 +98,7 @@ const Shop = () => {
           return b.id - a.id; // Assuming higher ID is newer
       }
     });
-  }, [products, searchParam, selectedCategories, priceRange, sortBy]);
+  }, [products, searchParam, selectedCategories, selectedBrands, priceRange, sortBy]);
 
   const handleCategoryChange = (category) => {
     setSelectedCategories(prev => 
@@ -95,12 +108,21 @@ const Shop = () => {
     );
   };
 
+  const handleBrandChange = (brand) => {
+    setSelectedBrands(prev => 
+      prev.includes(brand) 
+        ? prev.filter(b => b !== brand)
+        : [...prev, brand]
+    );
+  };
+
   const handlePriceChange = (type, value) => {
     setPriceRange(prev => ({ ...prev, [type]: value }));
   };
 
   const clearFilters = () => {
     setSelectedCategories([]);
+    setSelectedBrands([]);
     setPriceRange({ min: '', max: '' });
     setSortBy('newest');
   };
@@ -152,6 +174,9 @@ const Shop = () => {
             categories={allCategories}
             selectedCategories={selectedCategories}
             onCategoryChange={handleCategoryChange}
+            brands={allBrands}
+            selectedBrands={selectedBrands}
+            onBrandChange={handleBrandChange}
             priceRange={priceRange}
             onPriceChange={handlePriceChange}
             onClearFilters={clearFilters}

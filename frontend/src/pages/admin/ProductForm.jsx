@@ -14,6 +14,7 @@ const ProductForm = () => {
     description: '',
     features: '',
     category: 'Unisex',
+    brand: '',
   });
   const [variants, setVariants] = useState([]);
   const [imageFile, setImageFile] = useState(null);
@@ -31,6 +32,7 @@ const ProductForm = () => {
             description: product.description,
             features: product.features,
             category: product.category || 'Unisex',
+            brand: product.brand || '',
           });
           setCurrentImageUrl(product.image);
           if (product.variants) {
@@ -78,8 +80,9 @@ const ProductForm = () => {
     data.append('name', formData.name);
     data.append('price', formData.price);
     data.append('description', formData.description);
-    data.append('features', formData.features);
+    data.append('feature', formData.features);
     data.append('category', formData.category);
+    data.append('brand', formData.brand);
     
     // Append variants as JSON string (metadata only)
     // We send the variants JSON. Note: imageFile objects are stripped by JSON.stringify anyway, 
@@ -130,6 +133,13 @@ const ProductForm = () => {
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">Product Name</label>
             <div className="mt-1">
               <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" />
+            </div>
+          </div>
+
+          <div className="sm:col-span-4">
+            <label htmlFor="brand" className="block text-sm font-medium text-gray-700">Brand</label>
+            <div className="mt-1">
+              <input type="text" name="brand" id="brand" value={formData.brand} onChange={handleChange} placeholder="e.g. Rolex" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" />
             </div>
           </div>
 

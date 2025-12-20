@@ -43,6 +43,12 @@ router.get('/', (req, res) => {
     params.push(category);
   }
 
+  if (req.query.brand) {
+    const brands = req.query.brand.split(',');
+    conditions.push(`(${brands.map(() => 'brand = ?').join(' OR ')})`);
+    params.push(...brands);
+  }
+
   if (search) {
     conditions.push('name LIKE ?');
     params.push(`%${search}%`);
@@ -83,8 +89,10 @@ import { verifyToken, isAdmin } from '../middleware/auth.js';
 router.post('/', verifyToken, isAdmin, upload.any(), [
   body('name').isString().notEmpty(),
   body('price').isFloat({ min: 0 }),
+  body('amount').optional(), // Legacy or frontend issue? keeping loose
   body('description').isString(),
-  body('category').isString().notEmpty()
+  body('category').isString().notEmpty(),
+  body('brand').optional().isString()
 ], (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -95,7 +103,7 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name, price, description, category } = req.body;
+  const { name, price, description, category, brand } = req.body;
   
   let variants = [];
   try {
@@ -114,8 +122,8 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
     mainImage = `${baseUrl}${mainImageFile.filename}`;
   }
 
-  db.run('INSERT INTO products (name, price, description, image, category) VALUES (?, ?, ?, ?, ?)', 
-    [name, price, description, mainImage, category], 
+  db.run('INSERT INTO products (name, price, description, image, category, brand) VALUES (?, ?, ?, ?, ?, ?)', 
+    [name, price, description, mainImage, category, brand || 'M Timepiece'], 
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
       const productId = this.lastID;
@@ -160,7 +168,7 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name, price, description, category } = req.body;
+  const { name, price, description, category, brand } = req.body;
   let variants = [];
   try {
     variants = req.body.variants ? JSON.parse(req.body.variants) : [];
@@ -176,8 +184,8 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     image = `${baseUrl}${mainImageFile.filename}`;
   }
 
-  let query = 'UPDATE products SET name = COALESCE(?, name), price = COALESCE(?, price), description = COALESCE(?, description), category = COALESCE(?, category)';
-  const params = [name, price, description, category];
+  let query = 'UPDATE products SET name = COALESCE(?, name), price = COALESCE(?, price), description = COALESCE(?, description), category = COALESCE(?, category), brand = COALESCE(?, brand)';
+  const params = [name, price, description, category, brand];
 
   if (image) {
     query += ', image = ?';

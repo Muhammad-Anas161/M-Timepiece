@@ -7,6 +7,9 @@ const FilterSidebar = ({
   categories, 
   selectedCategories, 
   onCategoryChange,
+  brands,
+  selectedBrands,
+  onBrandChange,
   priceRange,
   onPriceChange,
   onClearFilters
@@ -32,6 +35,29 @@ const FilterSidebar = ({
             <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
               <X size={24} />
             </button>
+          </div>
+
+          
+          {/* Brands */}
+          <div className="mb-8">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
+              Brands
+            </h3>
+            <div className="space-y-3">
+              {brands && brands.map((brand) => (
+                <label key={brand} className="flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={selectedBrands.includes(brand)}
+                    onChange={() => onBrandChange(brand)}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-3 text-gray-600 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    {brand}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* Categories */}

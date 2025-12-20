@@ -153,7 +153,20 @@ const ProductDetails = () => {
 
               {/* Variants Selector */}
               {product.variants && product.variants.length > 0 && (
-                <div className="mt-8">
+                <div className="mt-8 border-t border-b py-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-900">Brand:</span>
+                  <span className="ml-2 text-gray-600">{product.brand || 'M Timepiece'}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-900">Category:</span>
+                  <span className="ml-2 text-gray-600">{product.category}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">Color</h3>
                   <div className="flex items-center space-x-3 mt-2">
                     {product.variants.map((variant) => (

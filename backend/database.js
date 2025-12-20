@@ -34,7 +34,8 @@ db.serialize(() => {
     image TEXT,
     description TEXT,
     features TEXT,
-    category TEXT DEFAULT 'Unisex'
+    category TEXT DEFAULT 'Unisex',
+    brand TEXT DEFAULT 'M Timepiece'
   )`, (err) => {
     if (err) console.error("Error creating products table:", err.message);
     else console.log("Products table verified/created");
@@ -144,6 +145,11 @@ db.serialize(() => {
   // Ensure 'image' exists in product_variants
   db.run("ALTER TABLE product_variants ADD COLUMN image TEXT", (err) => {
     if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (product_variants.image):", err.message);
+  });
+
+  // Ensure 'brand' exists in products
+  db.run("ALTER TABLE products ADD COLUMN brand TEXT DEFAULT 'M Timepiece'", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (products.brand):", err.message);
   });
 
   // Schema Fix: Ensure reviews table has new columns (for existing databases)
