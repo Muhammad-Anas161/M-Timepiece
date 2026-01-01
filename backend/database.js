@@ -35,7 +35,8 @@ db.serialize(() => {
     description TEXT,
     features TEXT,
     category TEXT DEFAULT 'Unisex',
-    brand TEXT DEFAULT 'M Timepiece'
+    brand TEXT DEFAULT 'M Timepiece',
+    hover_image TEXT
   )`, (err) => {
     if (err) console.error("Error creating products table:", err.message);
     else console.log("Products table verified/created");
@@ -66,6 +67,7 @@ db.serialize(() => {
     total REAL,
     status TEXT DEFAULT 'Pending',
     payment_method TEXT DEFAULT 'Credit Card',
+    order_number TEXT UNIQUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`, (err) => {
     if (err) console.error("Error creating orders table:", err.message);
@@ -134,6 +136,16 @@ db.serialize(() => {
     if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (orders.payment_method):", err.message);
   });
 
+  // Ensure 'order_number' exists in orders
+  db.run("ALTER TABLE orders ADD COLUMN order_number TEXT UNIQUE", (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.error("Migrate Warning (orders.order_number):", err.message);
+    } else if (!err) {
+      // If newly added, populate existing rows
+      db.run("UPDATE orders SET order_number = 'WJ-' || hex(randomblob(4)) WHERE order_number IS NULL");
+    }
+  });
+
   // Ensure 'email', 'loyalty_points' exist in users
   db.run("ALTER TABLE users ADD COLUMN email TEXT UNIQUE", (err) => {
     if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (users.email):", err.message);
@@ -150,6 +162,11 @@ db.serialize(() => {
   // Ensure 'brand' exists in products
   db.run("ALTER TABLE products ADD COLUMN brand TEXT DEFAULT 'M Timepiece'", (err) => {
     if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (products.brand):", err.message);
+  });
+
+  // Ensure 'hover_image' exists in products
+  db.run("ALTER TABLE products ADD COLUMN hover_image TEXT", (err) => {
+    if (err && !err.message.includes('duplicate column')) console.error("Migrate Warning (products.hover_image):", err.message);
   });
 
   // Schema Fix: Ensure reviews table has new columns (for existing databases)

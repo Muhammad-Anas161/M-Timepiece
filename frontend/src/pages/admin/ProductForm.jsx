@@ -18,7 +18,9 @@ const ProductForm = () => {
   });
   const [variants, setVariants] = useState([]);
   const [imageFile, setImageFile] = useState(null);
+  const [hoverImageFile, setHoverImageFile] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState('');
+  const [currentHoverImageUrl, setCurrentHoverImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,6 +37,7 @@ const ProductForm = () => {
             brand: product.brand || '',
           });
           setCurrentImageUrl(product.image);
+          setCurrentHoverImageUrl(product.hover_image);
           if (product.variants) {
             setVariants(product.variants);
           }
@@ -107,6 +110,12 @@ const ProductForm = () => {
       data.append('imageUrl', currentImageUrl);
     }
 
+    if (hoverImageFile) {
+      data.append('hover_image', hoverImageFile);
+    } else if (isEditMode) {
+      data.append('hoverImageUrl', currentHoverImageUrl);
+    }
+
     try {
       if (isEditMode) {
         await updateProduct(id, data);
@@ -166,12 +175,22 @@ const ProductForm = () => {
             />
           </div>
 
-          <div className="sm:col-span-6">
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Product Image</label>
+          <div className="sm:col-span-3">
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Thumbnail Image (For Shop Card)</label>
             <div className="mt-1 flex items-center gap-4">
-               <input type="file" name="image" id="image" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+               <input type="file" name="image" id="image" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
                {currentImageUrl && !imageFile && (
-                <img src={currentImageUrl} alt="Current" className="h-16 w-16 object-cover rounded-md border" />
+                <img src={currentImageUrl} alt="Current Thumbnail" className="h-16 w-16 object-cover rounded-md border" />
+              )}
+            </div>
+          </div>
+
+          <div className="sm:col-span-3">
+            <label htmlFor="hover_image" className="block text-sm font-medium text-gray-700">Main/Hover Image (Hover & Details Page)</label>
+            <div className="mt-1 flex items-center gap-4">
+               <input type="file" name="hover_image" id="hover_image" accept="image/*" onChange={(e) => setHoverImageFile(e.target.files[0])} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+               {currentHoverImageUrl && !hoverImageFile && (
+                <img src={currentHoverImageUrl} alt="Current Hover" className="h-16 w-16 object-cover rounded-md border" />
               )}
             </div>
           </div>

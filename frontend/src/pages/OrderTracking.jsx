@@ -1,42 +1,56 @@
 import React, { useState } from 'react';
-import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import { Search, Package, Truck, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import usePrice from '../hooks/usePrice';
+import { Link } from 'react-router-dom';
 
 const OrderTracking = () => {
   const [trackingId, setTrackingId] = useState('');
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { formatPrice } = usePrice();
 
-  const handleTrack = (e) => {
+  const handleTrack = async (e) => {
     e.preventDefault();
+    if (!trackingId.trim()) {
+      setError('Please enter a valid tracking ID');
+      return;
+    }
+
     setLoading(true);
     setError('');
+    setOrder(null);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (trackingId.trim()) {
-        // Mock order data
-        setOrder({
-          id: trackingId,
-          status: 'shipped',
-          createdAt: '2024-12-01',
-          estimatedDelivery: '2024-12-05',
-          items: [
-            { name: 'Classic Leather Watch', quantity: 1, price: 4999 }
-          ],
-          timeline: [
-            { status: 'confirmed', date: '2024-12-01 10:30 AM', completed: true },
-            { status: 'processing', date: '2024-12-01 02:15 PM', completed: true },
-            { status: 'shipped', date: '2024-12-02 09:00 AM', completed: true },
-            { status: 'out_for_delivery', date: 'Expected: 2024-12-05', completed: false },
-            { status: 'delivered', date: 'Pending', completed: false }
-          ]
-        });
-      } else {
-        setError('Please enter a valid tracking ID');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/orders/track/${trackingId.trim()}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Order not found. Please check your tracking ID.');
+        }
+        throw new Error('Failed to fetch order details');
       }
+
+      const data = await response.json();
+      
+      // Map database fields to the UI expectations if needed
+      // Our database uses created_at, total
+      setOrder({
+        ...data,
+        createdAt: data.created_at,
+        // Mock timeline based on status
+        timeline: [
+          { status: 'confirmed', date: new Date(data.created_at).toLocaleString(), completed: true },
+          { status: 'processing', date: 'Processing your order', completed: ['Processing', 'Shipped', 'Delivered'].includes(data.status) },
+          { status: 'shipped', date: 'On its way', completed: ['Shipped', 'Delivered'].includes(data.status) },
+          { status: 'delivered', date: 'Product delivered', completed: data.status === 'Delivered' }
+        ]
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -98,12 +112,12 @@ const OrderTracking = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Order #{order.id}</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Order {order.order_number ? `#${order.order_number}` : `#${order.id}`}</h2>
                   <p className="text-sm text-gray-500 mt-1">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Estimated Delivery</p>
-                  <p className="text-lg font-bold text-gray-900">{new Date(order.estimatedDelivery).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-lg font-bold text-indigo-600">{order.status}</p>
                 </div>
               </div>
 
@@ -148,8 +162,7 @@ const OrderTracking = () => {
                     <div>
                       <p className="font-medium text-gray-900">{item.name}</p>
                       <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                    </div>
-                    <p className="font-medium text-gray-900">Rs. {item.price.toLocaleString()}</p>
+                    <p className="font-medium text-gray-900">{formatPrice(item.price)}</p>
                   </div>
                 ))}
               </div>

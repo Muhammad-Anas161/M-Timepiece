@@ -76,7 +76,9 @@ const OrderList = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {orders.map((order) => (
               <tr key={order.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {order.order_number ? `#${order.order_number}` : `#${order.id}`}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {order.customer_name}<br/>
                   <span className="text-xs text-gray-400">{order.customer_email}</span>

@@ -63,7 +63,7 @@ const Orders = () => {
           <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
               <div>
-                <p className="text-sm text-gray-500">Order #{order.id}</p>
+                <p className="text-sm text-gray-500">Order {order.order_number ? `#${order.order_number}` : `#${order.id}`}</p>
                 <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
               </div>
               <div className="flex items-center gap-4">

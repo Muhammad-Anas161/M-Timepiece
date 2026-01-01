@@ -117,13 +117,20 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
   const baseUrl = `${protocol}://${host}/uploads/`;
 
   let mainImage = '';
+  let hoverImage = '';
+  
   const mainImageFile = req.files.find(f => f.fieldname === 'image');
   if (mainImageFile) {
     mainImage = `${baseUrl}${mainImageFile.filename}`;
   }
 
-  db.run('INSERT INTO products (name, price, description, image, category, brand) VALUES (?, ?, ?, ?, ?, ?)', 
-    [name, price, description, mainImage, category, brand || 'M Timepiece'], 
+  const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
+  if (hoverImageFile) {
+    hoverImage = `${baseUrl}${hoverImageFile.filename}`;
+  }
+
+  db.run('INSERT INTO products (name, price, description, image, category, brand, hover_image) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+    [name, price, description, mainImage, category, brand || 'M Timepiece', hoverImage], 
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
       const productId = this.lastID;
@@ -179,9 +186,16 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
   const baseUrl = `${protocol}://${host}/uploads/`;
 
   let image = undefined;
+  let hover_image = undefined;
+
   const mainImageFile = req.files.find(f => f.fieldname === 'image');
   if (mainImageFile) {
     image = `${baseUrl}${mainImageFile.filename}`;
+  }
+
+  const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
+  if (hoverImageFile) {
+    hover_image = `${baseUrl}${hoverImageFile.filename}`;
   }
 
   let query = 'UPDATE products SET name = COALESCE(?, name), price = COALESCE(?, price), description = COALESCE(?, description), category = COALESCE(?, category), brand = COALESCE(?, brand)';
@@ -190,6 +204,11 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
   if (image) {
     query += ', image = ?';
     params.push(image);
+  }
+
+  if (hover_image) {
+    query += ', hover_image = ?';
+    params.push(hover_image);
   } else if (req.body.imageUrl) {
      // If no new file but imageUrl is provided (retaining old image), we don't need to update the column unless we want to explicit set it. 
      // However, the standard usually is: if file provided, update. If not, keep old. 

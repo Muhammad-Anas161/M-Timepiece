@@ -36,7 +36,7 @@ const Checkout = () => {
 
     try {
       // Create order in backend first
-      await createOrder({
+      const orderResult = await createOrder({
         customer: {
           name: formData.name,
           email: formData.email,
@@ -52,22 +52,23 @@ const Checkout = () => {
         coupon: appliedCoupon?.code,
       });
       
+      const orderNumber = orderResult.orderNumber || orderResult.id;
       clearCart();
 
       // Unified Success Handler
       if (paymentMethod === 'COD/WhatsApp') {
-        const message = `Hi, I would like to place an order.\n\nName: ${formData.name}\nAddress: ${formData.street}, ${formData.city}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
+        const message = `Hi, I would like to place an order.\n\nOrder ID: #${orderNumber}\nName: ${formData.name}\nAddress: ${formData.street}, ${formData.city}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
         const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
         
-        toast.success('Order placed! Opening WhatsApp for confirmation...');
+        toast.success(`Order #${orderNumber} placed! Opening WhatsApp...`);
         window.open(whatsappUrl, '_blank');
         navigate('/');
         
       } else if (paymentMethod === 'Bank Transfer') {
-        toast.success(`Order Placed! Check email for bank details.`);
+        toast.success(`Order #${orderNumber} Placed! Check email for bank details.`);
         navigate('/');
       } else if (paymentMethod === 'Credit Card') {
-        toast.success('Order placed successfully!');
+        toast.success(`Order #${orderNumber} placed successfully!`);
         navigate('/');
       }
     } catch (error) {

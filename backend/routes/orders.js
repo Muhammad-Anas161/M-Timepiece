@@ -24,8 +24,10 @@ router.post('/', (req, res) => {
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
 
-    const sqlOrder = "INSERT INTO orders (customer_name, customer_email, address, city, zip, total, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    db.run(sqlOrder, [customer.name, customer.email, address.street, address.city, address.zip, total, customer.paymentMethod], function(err) {
+    const orderNumber = `WJ-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+
+    const sqlOrder = "INSERT INTO orders (customer_name, customer_email, address, city, zip, total, payment_method, order_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    db.run(sqlOrder, [customer.name, customer.email, address.street, address.city, address.zip, total, customer.paymentMethod, orderNumber], function(err) {
       if (err) {
         db.run("ROLLBACK");
         return res.status(500).json({ error: err.message });
@@ -58,7 +60,7 @@ router.post('/', (req, res) => {
           const pointsEarned = Math.floor(total / 100); // 1 point per 100 spent
           db.run("UPDATE users SET loyalty_points = loyalty_points + ? WHERE id = ?", [pointsEarned, customer.userId]);
           db.run("INSERT INTO loyalty_history (user_id, points, type, description) VALUES (?, ?, ?, ?)", 
-            [customer.userId, pointsEarned, 'earned', `Order #${orderId}`]);
+            [customer.userId, pointsEarned, 'earned', `Order #${orderNumber}`]);
         }
         
         // Async: Send to Google Sheets
@@ -77,7 +79,7 @@ router.post('/', (req, res) => {
             sendOrderEmail({ id: orderId, total }, customer, items);
         }).catch(err => console.error('Failed to load Email service', err));
 
-        res.json({ id: orderId, message: 'Order created successfully' });
+        res.json({ id: orderId, orderNumber, message: 'Order created successfully' });
       });
     });
   });
@@ -110,6 +112,24 @@ router.patch('/:id/status', authenticate, (req, res) => {
       res.json({ message: 'Order status updated', status });
     }
   );
+});
+
+// Track Order (Public) - Fetch by order_number
+router.get('/track/:orderNumber', (req, res) => {
+  const { orderNumber } = req.params;
+  
+  const sqlOrder = "SELECT * FROM orders WHERE order_number = ? OR id = ?";
+  db.get(sqlOrder, [orderNumber, orderNumber], (err, order) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    
+    // Fetch items for this order
+    const sqlItems = "SELECT * FROM order_items WHERE order_id = ?";
+    db.all(sqlItems, [order.id], (err, items) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ ...order, items });
+    });
+  });
 });
 
 export default router;

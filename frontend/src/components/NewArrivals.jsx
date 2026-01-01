@@ -36,7 +36,14 @@ const NewArrivals = () => {
                   <img 
                     src={product.image} 
                     alt={product.name} 
-                    className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
+                    onMouseEnter={(e) => {
+                      if (product.hover_image) e.currentTarget.src = product.hover_image;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.src = product.image;
+                    }}
+                    className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-all duration-500"
+                    loading="lazy"
                   />
                 </Link>
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none"></div>

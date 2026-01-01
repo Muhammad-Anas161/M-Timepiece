@@ -215,7 +215,14 @@ const Shop = () => {
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="h-full w-full object-cover object-center lg:h-full lg:w-full transition-transform duration-500 group-hover:scale-105"
+                          onMouseEnter={(e) => {
+                            if (product.hover_image) e.currentTarget.src = product.hover_image;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.src = product.image;
+                          }}
+                          className="h-full w-full object-cover object-center lg:h-full lg:w-full transition-all duration-500 group-hover:scale-105"
+                          loading="lazy"
                         />
                       </Link>
                       {/* Quick Add Button (Desktop) */}
