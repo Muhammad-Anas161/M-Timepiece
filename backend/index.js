@@ -37,8 +37,8 @@ app.set('trust proxy', 1);
 
 // Middleware - CORS configuration for production
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: false // No cookies used, safer for wildcard origin
+  origin: '*',
+  credentials: false
 }));
 app.use(express.json());
 app.use(compression());
