@@ -1,6 +1,5 @@
-
-// Use environment variable for production, fallback to localhost for development
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api');
+// Use strict production check to ignore potentially stale Vercel env vars
+const API_URL = import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
