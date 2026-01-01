@@ -1,3 +1,4 @@
+import express from 'express';
 import Coupon from '../models/Coupon.js';
 
 const router = express.Router();

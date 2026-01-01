@@ -1,3 +1,4 @@
+import express from 'express';
 import VisitorLog from '../models/VisitorLog.js';
 
 const router = express.Router();
