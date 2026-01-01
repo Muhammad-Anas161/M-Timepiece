@@ -13,7 +13,7 @@ const useVisitorTracker = () => {
       try {
         const screenRes = `${window.screen.width}x${window.screen.height}`;
         
-        await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/tracking/log`, {
+        await fetch(`${import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api')}/tracking/log`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

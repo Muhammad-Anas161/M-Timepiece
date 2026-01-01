@@ -24,7 +24,7 @@ const useCurrencyStore = create(
           // But user might travel. Let's fetch every time for now or depend on session.
           // For now, let's fetch always on app start.
           
-          const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+          const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api');
           const res = await fetch(`${API_URL}/location`);
           
           if (!res.ok) {
