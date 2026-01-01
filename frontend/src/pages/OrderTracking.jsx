@@ -162,6 +162,7 @@ const OrderTracking = () => {
                     <div>
                       <p className="font-medium text-gray-900">{item.name}</p>
                       <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                    </div>
                     <p className="font-medium text-gray-900">{formatPrice(item.price)}</p>
                   </div>
                 ))}
