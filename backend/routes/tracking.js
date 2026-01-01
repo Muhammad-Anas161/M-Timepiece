@@ -1,4 +1,6 @@
 import express from 'express';
+import geoip from 'geoip-lite';
+import { UAParser } from 'ua-parser-js';
 import VisitorLog from '../models/VisitorLog.js';
 
 const router = express.Router();
