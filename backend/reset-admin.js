@@ -1,26 +1,39 @@
-import sqlite3 from 'sqlite3';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+import User from './models/User.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Load environment variables
+dotenv.config();
 
-const dbPath = join(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath);
+const resetAdmin = async () => {
+  try {
+    await connectDB();
 
-const adminPassword = 'password123';
-const salt = bcrypt.genSaltSync(10);
-const hash = bcrypt.hashSync(adminPassword, salt);
+    const adminPassword = 'password123';
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(adminPassword, salt);
 
-db.serialize(() => {
-  db.run("DELETE FROM users WHERE username = 'admin'", (err) => {
-    if (err) console.error("Error deleting admin:", err);
-    else console.log("Deleted existing admin (if any)");
-    
-    db.run("INSERT INTO users (username, password) VALUES (?, ?)", ['admin', hash], (err) => {
-      if (err) console.error("Error creating admin:", err);
-      else console.log("Admin user reset: admin / password123");
+    // Delete existing admin
+    await User.deleteOne({ username: 'admin' });
+    console.log("Deleted existing admin (if any)");
+
+    // Create new admin
+    const admin = new User({
+      username: 'admin',
+      password: hash,
+      email: 'admin@watchjunction.com',
+      role: 'admin'
     });
-  });
-});
+
+    await admin.save();
+    console.log("Admin user reset: admin / password123");
+    
+    process.exit(0);
+  } catch (err) {
+    console.error("Error resetting admin:", err);
+    process.exit(1);
+  }
+};
+
+resetAdmin();

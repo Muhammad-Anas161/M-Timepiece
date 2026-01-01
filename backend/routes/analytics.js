@@ -1,89 +1,111 @@
-import express from 'express';
-import db from '../database.js';
+import Order from '../models/Order.js';
+import Product from '../models/Product.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
 // Get dashboard stats
-router.get('/stats', (req, res) => {
-  const stats = {};
+router.get('/stats', async (req, res) => {
+  try {
+    const revenueStats = await Order.aggregate([
+      { $group: { _id: null, total: { $sum: "$total" } } }
+    ]);
+    const revenue = revenueStats.length > 0 ? revenueStats[0].total : 0;
 
-  // Total Revenue
-  db.get('SELECT SUM(total) as total FROM orders', [], (err, row) => {
-    if (err) return res.status(500).json({ message: 'Error fetching revenue' });
-    stats.revenue = row.total || 0;
+    const ordersCount = await Order.countDocuments();
+    const productsCount = await Product.countDocuments();
+    
+    const uniqueEmails = await Order.distinct('customer_email');
+    const customersCount = uniqueEmails.length;
 
-    // Total Orders
-    db.get('SELECT COUNT(*) as count FROM orders', [], (err, row) => {
-      if (err) return res.status(500).json({ message: 'Error fetching orders' });
-      stats.orders = row.count;
-
-      // Total Products
-      db.get('SELECT COUNT(*) as count FROM products', [], (err, row) => {
-        if (err) return res.status(500).json({ message: 'Error fetching products' });
-        stats.products = row.count;
-
-        // Total Customers (Unique emails in orders)
-        db.get('SELECT COUNT(DISTINCT customer_email) as count FROM orders', [], (err, row) => {
-          if (err) return res.status(500).json({ message: 'Error fetching customers' });
-          stats.customers = row.count;
-
-          res.json(stats);
-        });
-      });
+    res.json({
+      revenue,
+      orders: ordersCount,
+      products: productsCount,
+      customers: customersCount
     });
-  });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching stats', error: err.message });
+  }
 });
 
 // Get sales chart data (Last 7 days)
-router.get('/sales', (req, res) => {
-  const query = `
-    SELECT date(created_at) as date, SUM(total) as amount, COUNT(*) as orders
-    FROM orders
-    WHERE created_at >= date('now', '-7 days')
-    GROUP BY date(created_at)
-    ORDER BY date(created_at)
-  `;
+router.get('/sales', async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
 
-  db.all(query, [], (err, rows) => {
-    if (err) {
-      console.error('Sales Analytics Error:', err);
-      return res.status(500).json({ message: 'Error fetching sales data' });
-    }
-    res.json(rows);
-  });
+    const sales = await Order.aggregate([
+      { $match: { created_at: { $gte: sevenDaysAgo } } },
+      { $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$created_at" } },
+          amount: { $sum: "$total" },
+          orders: { $sum: 1 }
+      }},
+      { $sort: { "_id": 1 } },
+      { $project: {
+          _id: 0,
+          date: "$_id",
+          amount: 1,
+          orders: 1
+      }}
+    ]);
+
+    res.json(sales);
+  } catch (err) {
+    console.error('Sales Analytics Error:', err);
+    res.status(500).json({ message: 'Error fetching sales data', error: err.message });
+  }
 });
 
 // Get top selling products
-router.get('/top-products', (req, res) => {
-  // Note: This assumes we have an order_items table. 
-  // Since we might be storing items as JSON in orders table (simplified), 
-  // we'll fetch orders and process in JS if needed, or if we have a proper schema:
-  
-  // Checking schema assumption: If items are JSON in orders table, we can't easily query top products with SQL alone in SQLite without JSON extension.
-  // Let's assume for now we just return the latest 5 products as "Trending" or similar if we can't query sales.
-  // However, let's try to see if we can get order counts per product if we have a relation.
-  // Based on previous context, we might not have a normalized order_items table.
-  // Let's stick to a simple query or mock if complex.
-  
-  // Actually, let's check if we can get products with low stock as "Top Priority" instead?
-  // Or just return top 5 most expensive products as "Premium Inventory".
-  
-  // Let's try to get products with highest price for now as a placeholder for "Top Value Assets"
-  const query = 'SELECT * FROM products ORDER BY price DESC LIMIT 5';
-  
-  db.all(query, [], (err, rows) => {
-    if (err) return res.status(500).json({ message: 'Error fetching top products' });
-    res.json(rows);
-  });
+router.get('/top-products', async (req, res) => {
+  try {
+    // Since we now have order items correctly modeled in MongoDB, we can actually calculate this!
+    const topProducts = await Order.aggregate([
+      { $unwind: "$items" },
+      { $group: {
+          _id: "$items.product_id",
+          totalSold: { $sum: "$items.quantity" },
+          revenue: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+      }},
+      { $sort: { totalSold: -1 } },
+      { $limit: 5 },
+      { $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails"
+      }},
+      { $unwind: "$productDetails" },
+      { $project: {
+          _id: 1,
+          totalSold: 1,
+          revenue: 1,
+          name: "$productDetails.name",
+          price: "$productDetails.price",
+          image: "$productDetails.image"
+      }}
+    ]);
+
+    res.json(topProducts);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching top products', error: err.message });
+  }
 });
 
 // Get order status distribution
-router.get('/order-status', (req, res) => {
-  const query = 'SELECT status, COUNT(*) as count FROM orders GROUP BY status';
-  db.all(query, [], (err, rows) => {
-    if (err) return res.status(500).json({ message: 'Error fetching status distribution' });
-    res.json(rows);
-  });
+router.get('/order-status', async (req, res) => {
+  try {
+    const distribution = await Order.aggregate([
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+      { $project: { _id: 0, status: "$_id", count: 1 } }
+    ]);
+    res.json(distribution);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching status distribution', error: err.message });
+  }
 });
 
 export default router;

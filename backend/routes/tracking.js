@@ -1,7 +1,4 @@
-import express from 'express';
-import geoip from 'geoip-lite';
-import { UAParser } from 'ua-parser-js';
-import db from '../database.js';
+import VisitorLog from '../models/VisitorLog.js';
 
 const router = express.Router();
 
@@ -26,52 +23,37 @@ const extractVisitorInfo = (req) => {
 };
 
 // POST /api/tracking/log - Log visitor data
-router.post('/log', (req, res) => {
+router.post('/log', async (req, res) => {
   const { screen_resolution, page_url } = req.body;
   const visitor = extractVisitorInfo(req);
 
-  const query = `
-    INSERT INTO visitor_logs 
-    (ip_address, user_agent, browser, os, device_type, screen_resolution, city, country, referrer, page_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+  try {
+    const log = new VisitorLog({
+      ip_address: visitor.ip,
+      user_agent: req.headers['user-agent'],
+      browser: visitor.browser,
+      os: visitor.os,
+      device_type: visitor.device,
+      screen_resolution: screen_resolution || 'Unknown',
+      city: visitor.city,
+      country: visitor.country,
+      referrer: visitor.referrer,
+      page_url: page_url || visitor.referrer
+    });
 
-  const params = [
-    visitor.ip,
-    req.headers['user-agent'],
-    visitor.browser,
-    visitor.os,
-    visitor.device,
-    screen_resolution || 'Unknown',
-    visitor.city,
-    visitor.country,
-    visitor.referrer,
-    page_url || visitor.referrer
-  ];
-
-  db.run(query, params, function(err) {
-    if (err) {
-      console.error('Error logging visitor:', err);
-      return res.status(500).json({ message: 'Error logging visit' });
-    }
-    res.json({ message: 'Visit logged', id: this.lastID });
-  });
+    await log.save();
+    res.json({ message: 'Visit logged', id: log._id });
+  } catch (err) {
+    console.error('Error logging visitor:', err);
+    res.status(500).json({ message: 'Error logging visit', error: err.message });
+  }
 });
 
 // GET /api/tracking/live - Get live traffic data (Admin only)
-router.get('/live', (req, res) => {
-  // Get last 50 visits
-  const query = `
-    SELECT * FROM visitor_logs 
-    ORDER BY visit_time DESC 
-    LIMIT 50
-  `;
-
-  db.all(query, [], (err, rows) => {
-    if (err) {
-      console.error('Error fetching live traffic:', err);
-      return res.status(500).json({ message: 'Error fetching traffic data' });
-    }
+router.get('/live', async (req, res) => {
+  try {
+    // Get last 50 visits
+    const rows = await VisitorLog.find().sort({ visit_time: -1 }).limit(50);
     
     // Calculate stats
     const stats = {
@@ -84,7 +66,10 @@ router.get('/live', (req, res) => {
     };
 
     res.json({ visits: rows, stats });
-  });
+  } catch (err) {
+    console.error('Error fetching live traffic:', err);
+    res.status(500).json({ message: 'Error fetching traffic data', error: err.message });
+  }
 });
 
 export default router;

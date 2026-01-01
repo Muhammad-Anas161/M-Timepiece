@@ -7,9 +7,6 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 import compression from 'compression';
 
-// Load environment variables
-dotenv.config();
-
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
@@ -20,6 +17,14 @@ import couponsRoutes from './routes/coupons.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import trackingRoutes from './routes/tracking.js';
 import locationRoutes from './routes/location.js';
+
+import connectDB from './config/db.js';
+
+// Load environment variables
+dotenv.config();
+
+// Connect to Database
+connectDB();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -70,10 +75,6 @@ app.use('/api/location', locationRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
-
-// Auto-run migrations is now handled by database.js internally
-// The explicit script execution is removed to prevent lock contention and race conditions
-console.log('Database schema initialized via database.js');
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {

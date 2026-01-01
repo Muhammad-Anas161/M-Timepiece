@@ -1,5 +1,4 @@
-import express from 'express';
-import db from '../database.js';
+import Product from '../models/Product.js';
 import multer from 'multer';
 import path from 'path';
 import { body, validationResult } from 'express-validator';
@@ -32,55 +31,39 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Get all products
-router.get('/', (req, res) => {
-  const { category, search } = req.query;
-  let query = 'SELECT * FROM products';
-  const params = [];
-  const conditions = [];
+router.get('/', async (req, res) => {
+  const { category, search, brand } = req.query;
+  const filter = {};
 
   if (category) {
-    conditions.push('category = ?');
-    params.push(category);
+    filter.category = category;
   }
 
-  if (req.query.brand) {
-    const brands = req.query.brand.split(',');
-    conditions.push(`(${brands.map(() => 'brand = ?').join(' OR ')})`);
-    params.push(...brands);
+  if (brand) {
+    filter.brand = { $in: brand.split(',') };
   }
 
   if (search) {
-    conditions.push('name LIKE ?');
-    params.push(`%${search}%`);
+    filter.name = { $regex: search, $options: 'i' };
   }
 
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
+  try {
+    const products = await Product.find(filter).sort({ created_at: -1 });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  db.all(query, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
 });
 
 // Get single product with variants
-router.get('/:id', (req, res) => {
-  db.get('SELECT * FROM products WHERE id = ?', [req.params.id], (err, product) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.get('/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
-
-    db.all('SELECT * FROM product_variants WHERE product_id = ?', [req.params.id], (err, variants) => {
-      // If error (e.g. table missing), log it but return product without variants
-      if (err) {
-        console.error('Failed to fetch variants:', err.message);
-        product.variants = [];
-      } else {
-        product.variants = variants;
-      }
-      res.json(product);
-    });
-  });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 import { verifyToken, isAdmin } from '../middleware/auth.js';
@@ -89,14 +72,12 @@ import { verifyToken, isAdmin } from '../middleware/auth.js';
 router.post('/', verifyToken, isAdmin, upload.any(), [
   body('name').isString().notEmpty(),
   body('price').isFloat({ min: 0 }),
-  body('amount').optional(), // Legacy or frontend issue? keeping loose
   body('description').isString(),
   body('category').isString().notEmpty(),
   body('brand').optional().isString()
-], (req, res) => {
+], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // Clean up uploaded files if validation fails
     if (req.files) {
       req.files.forEach(file => fs.unlinkSync(file.path));
     }
@@ -105,9 +86,9 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
 
   const { name, price, description, category, brand } = req.body;
   
-  let variants = [];
+  let variantsData = [];
   try {
-    variants = req.body.variants ? JSON.parse(req.body.variants) : [];
+    variantsData = req.body.variants ? JSON.parse(req.body.variants) : [];
   } catch (e) {
     console.error('Error parsing variants JSON:', e);
   }
@@ -129,35 +110,38 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
     hoverImage = `${baseUrl}${hoverImageFile.filename}`;
   }
 
-  db.run('INSERT INTO products (name, price, description, image, category, brand, hover_image) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-    [name, price, description, mainImage, category, brand || 'M Timepiece', hoverImage], 
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      const productId = this.lastID;
-
-      // Insert variants if any
-      if (variants.length > 0) {
-        const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier, image) VALUES (?, ?, ?, ?, ?, ?)');
-        
-        variants.forEach((v, index) => {
-          // Check for variant image in uploaded files
-          // The frontend should send variant images with fieldname 'variant_image_{index}'
-          // OR we match by some other convention if strictly ordered. 
-          // Using fieldname convention 'variant_image_INDEX' is safest.
-          const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
-          let variantImageUrl = null;
-          if (variantFile) {
-            variantImageUrl = `${baseUrl}${variantFile.filename}`;
-          }
-
-          stmt.run(productId, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0, variantImageUrl);
-        });
-        stmt.finalize();
-      }
-
-      res.json({ id: productId, name, price, description, image: mainImage, category, variants });
+  const processedVariants = variantsData.map((v, index) => {
+    const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
+    let variantImageUrl = v.image || null;
+    if (variantFile) {
+      variantImageUrl = `${baseUrl}${variantFile.filename}`;
     }
-  );
+    return {
+      color: v.color,
+      color_code: v.color_code || '#000000',
+      stock: v.stock || 0,
+      price_modifier: v.price_modifier || 0,
+      image: variantImageUrl
+    };
+  });
+
+  try {
+    const product = new Product({
+      name,
+      price,
+      description,
+      image: mainImage,
+      hover_image: hoverImage,
+      category,
+      brand: brand || 'M Timepiece',
+      variants: processedVariants
+    });
+
+    await product.save();
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update product and variants (Protected)

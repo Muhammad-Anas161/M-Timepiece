@@ -1,12 +1,9 @@
-import sqlite3 from 'sqlite3';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+import Product from './models/Product.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const dbPath = join(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath);
+// Load environment variables
+dotenv.config();
 
 const watchNames = [
   "Royal Oak", "Nautilus", "Speedmaster", "Submariner", "Daytona", 
@@ -33,32 +30,32 @@ const generateProducts = (count) => {
   const products = [];
   for (let i = 0; i < count; i++) {
     const name = `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${watchNames[Math.floor(Math.random() * watchNames.length)]}`;
-    const price = (Math.random() * 4000 + 100).toFixed(2);
+    const price = parseFloat((Math.random() * 4000 + 100).toFixed(2));
     const image = images[i % images.length];
     const category = categories[i % categories.length];
     const description = `A stunning ${category.toLowerCase()} watch featuring a ${adjectives[Math.floor(Math.random() * adjectives.length)].toLowerCase()} design. Perfect for any occasion.`;
     const features = "Sapphire Crystal\nSwiss Movement\nWater Resistant 100m\n5 Year Warranty";
 
-    products.push({ name, price, image, description, features, category });
+    products.push({ name, price, image, description, features, category, brand: 'M Timepiece' });
   }
   return products;
 };
 
-const productsToInsert = generateProducts(50);
+const seedProducts = async () => {
+  try {
+    await connectDB();
+    const productsToInsert = generateProducts(50);
+    
+    // Clear existing products if needed? Usually seeding is for fresh start.
+    // await Product.deleteMany({}); 
 
-db.serialize(() => {
-  const stmt = db.prepare("INSERT INTO products (name, price, image, description, features, category) VALUES (?, ?, ?, ?, ?, ?)");
-  
-  productsToInsert.forEach(p => {
-    stmt.run(p.name, p.price, p.image, p.description, p.features, p.category);
-  });
+    await Product.insertMany(productsToInsert);
+    console.log(`Successfully added ${productsToInsert.length} products.`);
+    process.exit(0);
+  } catch (err) {
+    console.error("Error seeding products:", err);
+    process.exit(1);
+  }
+};
 
-  stmt.finalize((err) => {
-    if (err) {
-      console.error("Error seeding products:", err);
-    } else {
-      console.log(`Successfully added ${productsToInsert.length} products.`);
-    }
-    db.close();
-  });
-});
+seedProducts();

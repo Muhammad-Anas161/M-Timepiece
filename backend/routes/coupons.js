@@ -1,33 +1,35 @@
-import express from 'express';
-import db from '../database.js';
+import Coupon from '../models/Coupon.js';
 
 const router = express.Router();
 
 // Table creation handled in database.js
 
 // Validate and apply coupon
-router.post('/validate', (req, res) => {
+router.post('/validate', async (req, res) => {
   const { code, orderTotal } = req.body;
 
   if (!code || !orderTotal) {
     return res.status(400).json({ message: 'Code and order total are required' });
   }
 
-  const query = `
-    SELECT * FROM coupons 
-    WHERE UPPER(code) = UPPER(?) 
-    AND active = 1 
-    AND (valid_until IS NULL OR datetime(valid_until) >= datetime('now'))
-    AND (usage_limit IS NULL OR used_count < usage_limit)
-  `;
-
-  db.get(query, [code], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error validating coupon' });
-    }
+  try {
+    const now = new Date();
+    const coupon = await Coupon.findOne({
+      code: { $regex: new RegExp(`^${code}$`, 'i') },
+      active: true,
+      $or: [
+        { valid_until: { $exists: false } },
+        { valid_until: null },
+        { valid_until: { $gte: now } }
+      ]
+    });
 
     if (!coupon) {
       return res.status(404).json({ message: 'Invalid or expired coupon code' });
+    }
+
+    if (coupon.usage_limit && coupon.used_count >= coupon.usage_limit) {
+      return res.status(404).json({ message: 'Coupon usage limit reached' });
     }
 
     // Check minimum purchase
@@ -57,37 +59,38 @@ router.post('/validate', (req, res) => {
         discount_amount: discount
       }
     });
-  });
+  } catch (err) {
+    res.status(500).json({ message: 'Error validating coupon', error: err.message });
+  }
 });
 
 // Increment coupon usage (called after order creation)
-router.post('/use', (req, res) => {
+router.post('/use', async (req, res) => {
   const { code } = req.body;
 
-  db.run(
-    'UPDATE coupons SET used_count = used_count + 1 WHERE UPPER(code) = UPPER(?)',
-    [code],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ message: 'Error updating coupon usage' });
-      }
-      res.json({ message: 'Coupon usage recorded' });
-    }
-  );
+  try {
+    await Coupon.updateOne(
+      { code: { $regex: new RegExp(`^${code}$`, 'i') } },
+      { $inc: { used_count: 1 } }
+    );
+    res.json({ message: 'Coupon usage recorded' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating coupon usage', error: err.message });
+  }
 });
 
 // Get all coupons (admin)
-router.get('/', (req, res) => {
-  db.all('SELECT * FROM coupons ORDER BY created_at DESC', [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error fetching coupons' });
-    }
-    res.json(rows);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const coupons = await Coupon.find().sort({ created_at: -1 });
+    res.json(coupons);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching coupons', error: err.message });
+  }
 });
 
 // Create coupon (admin)
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { 
     code, discount_type, discount_value, min_purchase, 
     max_discount, usage_limit, valid_until 
@@ -97,51 +100,51 @@ router.post('/', (req, res) => {
     return res.status(400).json({ message: 'Code, type, and value are required' });
   }
 
-  const query = `
-    INSERT INTO coupons (code, discount_type, discount_value, min_purchase, max_discount, usage_limit, valid_until)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
+  try {
+    const coupon = new Coupon({
+      code: code.toUpperCase(),
+      discount_type,
+      discount_value,
+      min_purchase: min_purchase || 0,
+      max_discount,
+      usage_limit,
+      valid_until
+    });
 
-  db.run(
-    query,
-    [code.toUpperCase(), discount_type, discount_value, min_purchase || 0, max_discount, usage_limit, valid_until],
-    function(err) {
-      if (err) {
-        if (err.message.includes('UNIQUE')) {
-          return res.status(400).json({ message: 'Coupon code already exists' });
-        }
-        return res.status(500).json({ message: 'Error creating coupon' });
-      }
-      res.status(201).json({ message: 'Coupon created successfully', id: this.lastID });
+    await coupon.save();
+    res.status(201).json({ message: 'Coupon created successfully', id: coupon._id });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'Coupon code already exists' });
     }
-  );
+    res.status(500).json({ message: 'Error creating coupon', error: err.message });
+  }
 });
 
 // Delete coupon (admin)
-router.delete('/:id', (req, res) => {
-  db.run('DELETE FROM coupons WHERE id = ?', [req.params.id], function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Error deleting coupon' });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Coupon not found' });
-    }
+router.delete('/:id', async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
     res.json({ message: 'Coupon deleted successfully' });
-  });
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting coupon', error: err.message });
+  }
 });
 
 // Toggle coupon active status (admin)
-router.patch('/:id/toggle', (req, res) => {
-  db.run(
-    'UPDATE coupons SET active = NOT active WHERE id = ?',
-    [req.params.id],
-    function(err) {
-      if (err) {
-        return res.status(500).json({ message: 'Error updating coupon' });
-      }
-      res.json({ message: 'Coupon status updated' });
-    }
-  );
+router.patch('/:id/toggle', async (req, res) => {
+  try {
+    const coupon = await Coupon.findById(req.params.id);
+    if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
+    
+    coupon.active = !coupon.active;
+    await coupon.save();
+    
+    res.json({ message: 'Coupon status updated', active: coupon.active });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating coupon', error: err.message });
+  }
 });
 
 export default router;

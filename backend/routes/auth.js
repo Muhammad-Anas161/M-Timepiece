@@ -1,8 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import db from '../database.js';
-import { body, validationResult } from 'express-validator';
+import User from '../models/User.js';
 
 const router = express.Router();
 const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // Fallback for dev only
@@ -10,7 +9,7 @@ const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // Fallback for 
 router.post('/login', [
   body('username').isString().trim().notEmpty(),
   body('password').isString().notEmpty()
-], (req, res) => {
+], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -18,29 +17,31 @@ router.post('/login', [
 
   const { username, password } = req.body;
 
-  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    const user = await User.findOne({ username });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const validPassword = bcrypt.compareSync(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role, email: user.email }, 
+      { id: user._id, username: user.username, role: user.role, email: user.email }, 
       SECRET_KEY, 
       { expiresIn: '24h' }
     );
     res.json({ 
       token, 
       user: { 
-        id: user.id, 
+        id: user._id, 
         username: user.username, 
         role: user.role,
         email: user.email,
         loyalty_points: user.loyalty_points 
       } 
     });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Registration Disabled

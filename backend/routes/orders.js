@@ -1,6 +1,9 @@
-import express from 'express';
-import db from '../database.js';
+import Order from '../models/Order.js';
+import Product from '../models/Product.js';
+import User from '../models/User.js';
+import LoyaltyHistory from '../models/LoyaltyHistory.js';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 const SECRET_KEY = 'your-secret-key'; // Must match auth.js
@@ -17,84 +20,104 @@ const authenticate = (req, res, next) => {
 };
 
 // Create Order (Public)
-router.post('/', (req, res) => {
-  const { customer, address, items, total } = req.body;
+router.post('/', async (req, res) => {
+  const { customer, address, items, total, coupon } = req.body;
   
-  // Start transaction (simplified)
-  db.serialize(() => {
-    db.run("BEGIN TRANSACTION");
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
+  try {
     const orderNumber = `WJ-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
 
-    const sqlOrder = "INSERT INTO orders (customer_name, customer_email, address, city, zip, total, payment_method, order_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    db.run(sqlOrder, [customer.name, customer.email, address.street, address.city, address.zip, total, customer.paymentMethod, orderNumber], function(err) {
-      if (err) {
-        db.run("ROLLBACK");
-        return res.status(500).json({ error: err.message });
-      }
-      
-      const orderId = this.lastID;
-      const sqlItem = "INSERT INTO order_items (order_id, product_id, quantity, price, variant_id, variant_info) VALUES (?, ?, ?, ?, ?, ?)";
-      const stmt = db.prepare(sqlItem);
-      
-      items.forEach(item => {
-        // item.variantId and item.color should be sent from frontend
-        stmt.run(orderId, item.id, item.quantity, item.price, item.variantId || null, item.selectedColor || null);
-        
-        // Deduct stock for the variant if applicable
-        if (item.variantId) {
-          db.run("UPDATE product_variants SET stock = stock - ? WHERE id = ?", [item.quantity, item.variantId]);
-        }
-      });
-      
-      stmt.finalize((err) => {
-        if (err) {
-          db.run("ROLLBACK");
-          return res.status(500).json({ error: err.message });
-        }
-        
-        db.run("COMMIT");
-        
-        // Award loyalty points if user is logged in (simplified: 1 point per spend)
-        if (customer.userId) {
-          const pointsEarned = Math.floor(total / 100); // 1 point per 100 spent
-          db.run("UPDATE users SET loyalty_points = loyalty_points + ? WHERE id = ?", [pointsEarned, customer.userId]);
-          db.run("INSERT INTO loyalty_history (user_id, points, type, description) VALUES (?, ?, ?, ?)", 
-            [customer.userId, pointsEarned, 'earned', `Order #${orderNumber}`]);
-        }
-        
-        // Async: Send to Google Sheets
-        import('../services/googleSheets.js').then(({ appendOrderToSheet }) => {
-          appendOrderToSheet({
-            orderId,
-            customerName: customer.name,
-            customerEmail: customer.email,
-            items: items.map(i => i.name).join(', '),
-            total
-          });
-        }).catch(err => console.error('Failed to load Google Sheets service', err));
+    // Map items to Mongoose schema
+    const orderItems = items.map(item => ({
+      product_id: item.id,
+      quantity: item.quantity,
+      price: item.price,
+      variant_id: item.variantId || null,
+      variant_info: item.selectedColor || null
+    }));
 
-        // Async: Send Email Notification to Admin
-        import('../services/email.js').then(({ sendOrderEmail }) => {
-            sendOrderEmail({ id: orderId, total }, customer, items);
-        }).catch(err => console.error('Failed to load Email service', err));
-
-        res.json({ id: orderId, orderNumber, message: 'Order created successfully' });
-      });
+    const order = new Order({
+      customer_name: customer.name,
+      customer_email: customer.email,
+      address: address.street,
+      city: address.city,
+      zip: address.zip,
+      total,
+      payment_method: customer.paymentMethod || 'COD/WhatsApp',
+      order_number: orderNumber,
+      items: orderItems
     });
-  });
+
+    await order.save({ session });
+
+    // Stock management
+    for (const item of items) {
+      if (item.variantId) {
+        // Find product and update variant stock
+        // Note: For now, we assume variantId is the index or some identifier in the variants array
+        // In Mongoose, we should probably find by order.items.product_id and then update subdocument
+        await Product.updateOne(
+          { _id: item.id, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": -item.quantity } },
+          { session }
+        );
+      }
+    }
+
+    // Award loyalty points
+    if (customer.userId) {
+      const pointsEarned = Math.floor(total / 100);
+      await User.findByIdAndUpdate(customer.userId, { $inc: { loyalty_points: pointsEarned } }, { session });
+      
+      const loyalty = new LoyaltyHistory({
+        user_id: customer.userId,
+        points: pointsEarned,
+        type: 'earned',
+        description: `Order #${orderNumber}`
+      });
+      await loyalty.save({ session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // Async tasks
+    import('../services/googleSheets.js').then(({ appendOrderToSheet }) => {
+      appendOrderToSheet({
+        orderId: order._id,
+        customerName: customer.name,
+        customerEmail: customer.email,
+        items: items.map(i => i.name).join(', '),
+        total
+      });
+    }).catch(err => console.error('Failed to load Google Sheets service', err));
+
+    import('../services/email.js').then(({ sendOrderEmail }) => {
+      sendOrderEmail({ id: order._id, total, orderNumber }, customer, items);
+    }).catch(err => console.error('Failed to load Email service', err));
+
+    res.json({ id: order._id, orderNumber, message: 'Order created successfully' });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get Orders (Protected)
-router.get('/', authenticate, (req, res) => {
-  db.all("SELECT * FROM orders ORDER BY created_at DESC", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+router.get('/', authenticate, async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ created_at: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update Order Status (Protected)
-router.patch('/:id/status', authenticate, (req, res) => {
+router.patch('/:id/status', authenticate, async (req, res) => {
   const { status } = req.body;
   const { id } = req.params;
   
@@ -103,33 +126,33 @@ router.patch('/:id/status', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Invalid status' });
   }
   
-  db.run(
-    "UPDATE orders SET status = ? WHERE id = ?",
-    [status, id],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) return res.status(404).json({ error: 'Order not found' });
-      res.json({ message: 'Order status updated', status });
-    }
-  );
+  try {
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order status updated', status: order.status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Track Order (Public) - Fetch by order_number
-router.get('/track/:orderNumber', (req, res) => {
+router.get('/track/:orderNumber', async (req, res) => {
   const { orderNumber } = req.params;
   
-  const sqlOrder = "SELECT * FROM orders WHERE order_number = ? OR id = ?";
-  db.get(sqlOrder, [orderNumber, orderNumber], (err, order) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    // Try finding by order_number first, then by _id if it's a valid ObjectId
+    let order = await Order.findOne({ order_number: orderNumber }).populate('items.product_id');
+    
+    if (!order && mongoose.Types.ObjectId.isValid(orderNumber)) {
+      order = await Order.findById(orderNumber).populate('items.product_id');
+    }
+
     if (!order) return res.status(404).json({ error: 'Order not found' });
     
-    // Fetch items for this order
-    const sqlItems = "SELECT * FROM order_items WHERE order_id = ?";
-    db.all(sqlItems, [order.id], (err, items) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ ...order, items });
-    });
-  });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;
