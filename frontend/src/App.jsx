@@ -72,76 +72,39 @@ function App() {
         <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/product/:id" element={
-              <>
-                <Navbar />
-                <CartSidebar />
-                <main>
-                  <ProductDetails />
-                </main>
-                <Footer />
-              </>
-            } />
-            <Route path="/shop" element={
-              <>
-                <SEO title="Shop" description="Explore our exclusive collection of luxury watches." />
-                <Navbar />
-                <CartSidebar />
-                <main>
+const MainLayout = lazy(() => import('./layouts/MainLayout'));
+
+// ... existing imports ...
+
+// ... inside Routes ...
+
+            {/* Public Routes with MainLayout */}
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/shop" element={
+                <>
+                  <SEO title="Shop" description="Explore our exclusive collection of luxury watches." />
                   <Shop />
-                </main>
-                <Footer />
-              </>
-            } />
-            <Route path="/about" element={
-              <>
-                <SEO title="About Us" description="Learn about the craftsmanship behind M Timepiece watches." />
-                <Navbar />
-                <CartSidebar />
-                <main>
+                </>
+              } />
+              <Route path="/about" element={
+                <>
+                  <SEO title="About Us" description="Learn about the craftsmanship behind M Timepiece watches." />
                   <About />
-                </main>
-                <Footer />
-              </>
-            } />
-            <Route path="/faq" element={<><SEO title="FAQ" /><Navbar /><CartSidebar /><main><FAQ /></main><Footer /></>} />
-            <Route path="/shipping" element={<><SEO title="Shipping & Returns" /><Navbar /><CartSidebar /><main><ShippingReturns /></main><Footer /></>} />
-            <Route path="/care" element={<><SEO title="Care Instructions" /><Navbar /><CartSidebar /><main><CareInstructions /></main><Footer /></>} />
-            <Route path="/contact" element={<><SEO title="Contact Us" /><Navbar /><CartSidebar /><main><Contact /></main><Footer /></>} />
-            <Route path="/privacy" element={<><SEO title="Privacy Policy" /><Navbar /><CartSidebar /><main><PrivacyPolicy /></main><Footer /></>} />
-            <Route path="/terms" element={<><SEO title="Terms of Service" /><Navbar /><CartSidebar /><main><TermsOfService /></main><Footer /></>} />
+                </>
+              } />
+              <Route path="/faq" element={<><SEO title="FAQ" /><FAQ /></>} />
+              <Route path="/shipping" element={<><SEO title="Shipping & Returns" /><ShippingReturns /></>} />
+              <Route path="/care" element={<><SEO title="Care Instructions" /><CareInstructions /></>} />
+              <Route path="/contact" element={<><SEO title="Contact Us" /><Contact /></>} />
+              <Route path="/privacy" element={<><SEO title="Privacy Policy" /><PrivacyPolicy /></>} />
+              <Route path="/terms" element={<><SEO title="Terms of Service" /><TermsOfService /></>} />
+              <Route path="/checkout" element={<><SEO title="Checkout" /><Checkout /></>} />
+              <Route path="/track-order" element={<><SEO title="Track Order" /><OrderTracking /></>} />
+            </Route>
+
             <Route path="/login" element={<><SEO title="Login" /><Login /></>} />
-            <Route path="/checkout" element={
-              <>
-                <SEO title="Checkout" />
-                <Navbar />
-                <main>
-                  <Checkout />
-                </main>
-                <Footer />
-              </>
-            } />
-            <Route path="/track-order" element={
-              <>
-                <SEO title="Track Order" />
-                <Navbar />
-                <CartSidebar />
-                <main>
-                  <OrderTracking />
-                </main>
-                <Footer />
-              </>
-            } />
-            {/* User Routes Removed */}
-             {/* <Route path="/user" element={<UserLayout />}>
-              <Route index element={<UserDashboard />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="wishlist" element={<Wishlist />} />
-              <Route path="loyalty" element={<LoyaltyPoints />} />
-            </Route> */}
 
             {/* Admin Routes - Protected by Role */}
             <Route element={<ProtectedRoute requireAdmin={true} />}>
