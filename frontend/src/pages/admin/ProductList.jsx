@@ -70,7 +70,7 @@ const ProductList = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {products.map((product) => (
-                    <tr key={product.id}>
+                    <tr key={product._id || product.id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
@@ -85,11 +85,11 @@ const ProductList = () => {
                         ${product.price.toFixed(2)}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link to={`/admin/products/edit/${product.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">
+                        <Link to={`/admin/products/edit/${product._id || product.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">
                           <Edit className="h-5 w-5 inline" />
                           <span className="sr-only">Edit, {product.name}</span>
                         </Link>
-                        <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">
+                        <button onClick={() => handleDelete(product._id || product.id)} className="text-red-600 hover:text-red-900">
                           <Trash2 className="h-5 w-5 inline" />
                           <span className="sr-only">Delete, {product.name}</span>
                         </button>
