@@ -56,8 +56,7 @@ const ProductDetails = () => {
     if (!product) return [];
     const images = [
       product.image,
-      ...(product.images || []),
-      ...(product.variants || []).map(v => v.image)
+      ...(product.images || [])
     ].filter(Boolean);
     return [...new Set(images)];
   }, [product]);
@@ -183,7 +182,7 @@ const ProductDetails = () => {
               {product.variants && product.variants.length > 0 && (
                 <div className="mt-8">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">Color</h3>
-                  <div className="flex items-center space-x-3 mt-2">
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
                     {product.variants.map((variant) => (
                       <button
                         key={variant.id}
@@ -191,22 +190,32 @@ const ProductDetails = () => {
                           setSelectedVariant(variant);
                           if (variant.image) setCurrentImage(variant.image);
                         }}
-                        className={`relative w-8 h-8 rounded-full focus:outline-none ring-2 ring-offset-2 ${
-                          selectedVariant && selectedVariant.id === variant.id ? 'ring-indigo-500' : 'ring-transparent border border-gray-200'
+                        className={`relative w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+                          selectedVariant && selectedVariant.id === variant.id 
+                            ? 'border-indigo-600 ring-2 ring-indigo-600 ring-offset-2' 
+                            : 'border-gray-200 hover:border-gray-300'
                         }`}
-                        style={{ backgroundColor: variant.color_code || '#000' }}
                         title={`${variant.color} ${variant.price_modifier ? `(${formatPrice(variant.price_modifier)} extra)` : ''}`}
                       >
+                         {variant.image ? (
+                           <img 
+                             src={variant.image} 
+                             alt={variant.color} 
+                             className="w-full h-full object-cover"
+                           />
+                         ) : (
+                           <span 
+                            className="block w-full h-full"
+                            style={{ backgroundColor: variant.color_code || '#000' }}
+                           />
+                         )}
                          {selectedVariant && selectedVariant.id === variant.id && (
-                           <span className="absolute inset-0 flex items-center justify-center text-white mix-blend-difference">
-                             <Check size={14} />
-                           </span>
+                           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                             <Check size={20} className="text-white drop-shadow-md" />
+                           </div>
                          )}
                       </button>
                     ))}
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                      {selectedVariant ? selectedVariant.color : 'Select a color'}
-                    </span>
                   </div>
                 </div>
               )}
