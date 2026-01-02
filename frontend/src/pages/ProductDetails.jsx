@@ -90,6 +90,16 @@ const ProductDetails = () => {
   // Determine stock to show
   const displayStock = selectedVariant ? selectedVariant.stock : product.stock_quantity;
 
+  const uniqueImages = React.useMemo(() => {
+    if (!product) return [];
+    const images = [
+      product.image,
+      ...(product.images || []),
+      ...(product.variants || []).map(v => v.image)
+    ].filter(Boolean);
+    return [...new Set(images)];
+  }, [product]);
+
   return (
     <div className="bg-white dark:bg-gray-900 transition-colors duration-200 min-h-screen">
       <div className="pt-24 pb-16 sm:pb-24">
@@ -208,45 +218,19 @@ const ProductDetails = () => {
               <div class="flex flex-col-reverse lg:flex-row gap-4">
                 {/* Thumbnails */}
                  <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] scrollbar-hide">
-                    {/* Main Image Thumbnail */}
-                    <button
-                      onClick={() => {
-                        setCurrentImage(product.image);
-                        setSelectedVariant(null);
-                      }}
-                      className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === product.image ? 'border-indigo-500' : 'border-transparent'}`}
-                    >
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
-                    </button>
-                    
-                    {/* Gallery Thumbnails */}
-                    {product.images && product.images.map((img, index) => (
+                    {uniqueImages.map((img, index) => (
                       <button
-                        key={`gallery-${index}`}
+                        key={index}
                         onClick={() => {
                           setCurrentImage(img);
-                          setSelectedVariant(null);
+                          // Auto-select variant if image matches
+                          const variant = product.variants?.find(v => v.image === img);
+                          setSelectedVariant(variant || null);
                         }}
                         className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === img ? 'border-indigo-500' : 'border-transparent'}`}
                       >
-                        <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={img} alt={`${product.name} view ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
                       </button>
-                    ))}
-
-                    {/* Variant Thumbnails */}
-                    {product.variants && product.variants.map((v) => (
-                      v.image && (
-                        <button
-                          key={v.id}
-                          onClick={() => {
-                            setCurrentImage(v.image);
-                            setSelectedVariant(v);
-                          }}
-                          className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === v.image ? 'border-indigo-500' : 'border-transparent'}`}
-                        >
-                          <img src={v.image} alt={v.color} className="w-full h-full object-cover" loading="lazy" />
-                        </button>
-                      )
                     ))}
                  </div>
 
