@@ -24,7 +24,7 @@ const WhatsAppButton = () => {
       </span>
       
       {/* Pulse animation */}
-      <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></span>
+      <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75 pointer-events-none"></span>
     </button>
   );
 };
