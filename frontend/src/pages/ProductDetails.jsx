@@ -30,9 +30,9 @@ const ProductDetails = () => {
         // Auto-select first variant if available
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);
-          setCurrentImage(data.variants[0].image || data.hover_image || data.image);
+          setCurrentImage(data.variants[0].image || data.image);
         } else {
-          setCurrentImage(data.hover_image || data.image);
+          setCurrentImage(data.image);
         }
       } catch (err) {
         setError(err.message);
@@ -207,12 +207,12 @@ const ProductDetails = () => {
                     {/* Main Image Thumbnail */}
                     <button
                       onClick={() => {
-                        setCurrentImage(product.hover_image || product.image);
+                        setCurrentImage(product.image);
                         setSelectedVariant(null);
                       }}
-                      className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === (product.hover_image || product.image) ? 'border-indigo-500' : 'border-transparent'}`}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === product.image ? 'border-indigo-500' : 'border-transparent'}`}
                     >
-                      <img src={product.hover_image || product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
                     </button>
                     
                     {/* Variant Thumbnails */}

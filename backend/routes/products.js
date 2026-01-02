@@ -91,16 +91,9 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
   }
 
   let mainImage = '';
-  let hoverImage = '';
-  
   const mainImageFile = req.files.find(f => f.fieldname === 'image');
   if (mainImageFile) {
     mainImage = mainImageFile.path;
-  }
-
-  const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
-  if (hoverImageFile) {
-    hoverImage = hoverImageFile.path;
   }
 
   const processedVariants = variantsData.map((v, index) => {
@@ -124,7 +117,6 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
       price,
       description,
       image: mainImage,
-      hover_image: hoverImage,
       category,
       brand: brand || 'M Timepiece',
       variants: processedVariants
@@ -180,12 +172,6 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     const mainImageFile = req.files.find(f => f.fieldname === 'image');
     if (mainImageFile) {
       product.image = mainImageFile.path;
-    }
-
-    // Handle Hover Image
-    const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
-    if (hoverImageFile) {
-      product.hover_image = hoverImageFile.path;
     }
 
     // Handle Variants

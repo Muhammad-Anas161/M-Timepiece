@@ -35,12 +35,7 @@ const FeaturedCollection = () => {
                   <img 
                     src={product.image} 
                     alt={product.name} 
-                    onMouseEnter={(e) => {
-                      if (product.hover_image) e.currentTarget.src = product.hover_image;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.src = product.image;
-                    }}
+
                     className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-all duration-500"
                     loading="lazy"
                   />
