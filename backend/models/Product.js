@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   image: String,
-
+  images: [String], // Additional gallery images
   description: String,
   features: String,
   category: { type: [String], default: ['Unisex'] },

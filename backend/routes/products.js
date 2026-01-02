@@ -104,6 +104,10 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
     mainImage = mainImageFile.path;
   }
 
+  // Handle Gallery Images
+  const galleryImageFiles = req.files.filter(f => f.fieldname === 'gallery_images');
+  const galleryImages = galleryImageFiles.map(f => f.path);
+
   const processedVariants = variantsData.map((v, index) => {
     const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
     let variantImageUrl = v.image || null;
@@ -182,6 +186,29 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
       product.image = mainImageFile.path;
     }
 
+    // Handle Gallery Images
+    // 1. Get newly uploaded images
+    const galleryImageFiles = req.files.filter(f => f.fieldname === 'gallery_images');
+    const newGalleryImages = galleryImageFiles.map(f => f.path);
+
+    // 2. Get kept images from existing list (passed from frontend)
+    // If kept_images is not provided, it implies clearing all previous images if we are strict,
+    // BUT for safety, if it's undefined we might want to keep all? 
+    // Standardization: Frontend MUST send 'kept_images' if it wants to keep any. 
+    // If it sends nothing, we assume user deleted all or didn't provide info.
+    // However, FormData behavior: if array is empty, key might not exist.
+    // Let's rely on a specific flag or just default to empty array if kept_images matches nothing, 
+    // BUT we must differentiate between "didn't touch gallery" and "deleted all".
+    // Strategy: We will strictly update `images` ONLY IF `gallery_images` OR `kept_images` is present in req.
+    
+    if (req.files.some(f => f.fieldname === 'gallery_images') || req.body.kept_images !== undefined) {
+         let keptImages = [];
+         if (req.body.kept_images) {
+             keptImages = Array.isArray(req.body.kept_images) ? req.body.kept_images : [req.body.kept_images];
+         }
+         product.images = [...keptImages, ...newGalleryImages];
+    }
+    
     // Handle Variants
     if (variants && variants.length > 0) {
       const processedVariants = variants.map((v, index) => {

@@ -217,6 +217,20 @@ const ProductDetails = () => {
                       <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
                     </button>
                     
+                    {/* Gallery Thumbnails */}
+                    {product.images && product.images.map((img, index) => (
+                      <button
+                        key={`gallery-${index}`}
+                        onClick={() => {
+                          setCurrentImage(img);
+                          setSelectedVariant(null);
+                        }}
+                        className={`relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${currentImage === img ? 'border-indigo-500' : 'border-transparent'}`}
+                      >
+                        <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                      </button>
+                    ))}
+
                     {/* Variant Thumbnails */}
                     {product.variants && product.variants.map((v) => (
                       v.image && (
