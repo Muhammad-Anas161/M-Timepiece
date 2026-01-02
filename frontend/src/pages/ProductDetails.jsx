@@ -44,28 +44,25 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
+  // Calculate dynamic price (Safe to execute even if product is null, just guard access)
+  const currentPrice = selectedVariant 
+    ? (product?.price || 0) + (selectedVariant.price_modifier || 0)
+    : (product?.price || 0);
 
-  if (error || !product) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
-         {error && <p className="text-red-500 mb-4">{error}</p>}
-        <Link to="/" className="text-indigo-600 hover:text-indigo-500 flex items-center">
-          <ArrowLeft className="mr-2 h-5 w-5" />
-          Back to Home
-        </Link>
-      </div>
-    );
-  }
+  // Determine stock to show
+  const displayStock = selectedVariant ? selectedVariant.stock : (product?.stock_quantity || 0);
+
+  const uniqueImages = React.useMemo(() => {
+    if (!product) return [];
+    const images = [
+      product.image,
+      ...(product.images || [])
+    ].filter(Boolean);
+    return [...new Set(images)];
+  }, [product]);
 
   const handleAddToCart = () => {
+    if (!product) return;
     // If variants exist but none selected (shouldn't happen with auto-select, but safe guard)
     if (product.variants && product.variants.length > 0 && !selectedVariant) {
       alert('Please select a color');
@@ -82,22 +79,15 @@ const ProductDetails = () => {
     addToCart(product, quantity, selectedVariant);
   };
 
-  // Calculate dynamic price
-  const currentPrice = selectedVariant 
-    ? product.price + (selectedVariant.price_modifier || 0)
-    : product.price;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
-  // Determine stock to show
-  const displayStock = selectedVariant ? selectedVariant.stock : product.stock_quantity;
-
-  const uniqueImages = React.useMemo(() => {
-    if (!product) return [];
-    const images = [
-      product.image,
-      ...(product.images || [])
-    ].filter(Boolean);
-    return [...new Set(images)];
-  }, [product]);
+  if (error || !product) {
 
   return (
     <div className="bg-white dark:bg-gray-900 transition-colors duration-200 min-h-screen">
