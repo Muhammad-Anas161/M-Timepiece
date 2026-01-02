@@ -6,27 +6,23 @@ import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
 
-// Configure Multer for image upload
-// Configure Multer to use persistent volume if available
-import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-const isRailwayVolume = process.env.DB_FILE_PATH && process.env.DB_FILE_PATH.includes('/app/data');
-const uploadDir = isRailwayVolume 
-  ? path.join('/app/data', 'uploads') 
-  : process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dweiwmhyn',
+  api_key: process.env.CLOUDINARY_API_KEY || '639921947834824',
+  api_secret: process.env.CLOUDINARY_API_SECRET || 'a17cJSbokE_wtwcUPoZW_Ad95c4'
+});
 
-// Ensure upload directory exists
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'm-timepiece',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    transformation: [{ width: 1000, height: 1000, crop: 'limit' }]
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
 });
 
 const upload = multer({ storage });
@@ -94,28 +90,24 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
     console.error('Error parsing variants JSON:', e);
   }
 
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
-  const host = req.get('host');
-  const baseUrl = `${protocol}://${host}/uploads/`;
-
   let mainImage = '';
   let hoverImage = '';
   
   const mainImageFile = req.files.find(f => f.fieldname === 'image');
   if (mainImageFile) {
-    mainImage = `${baseUrl}${mainImageFile.filename}`;
+    mainImage = mainImageFile.path;
   }
 
   const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
   if (hoverImageFile) {
-    hoverImage = `${baseUrl}${hoverImageFile.filename}`;
+    hoverImage = hoverImageFile.path;
   }
 
   const processedVariants = variantsData.map((v, index) => {
     const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
     let variantImageUrl = v.image || null;
     if (variantFile) {
-      variantImageUrl = `${baseUrl}${variantFile.filename}`;
+      variantImageUrl = variantFile.path;
     }
     return {
       color: v.color,
@@ -170,10 +162,6 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     console.error('Error parsing variants JSON:', e);
   }
 
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
-  const host = req.get('host');
-  const baseUrl = `${protocol}://${host}/uploads/`;
-
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -191,28 +179,23 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     // Handle Main Image
     const mainImageFile = req.files.find(f => f.fieldname === 'image');
     if (mainImageFile) {
-      product.image = `${baseUrl}${mainImageFile.filename}`;
-      // Ideally delete old image here if exists
+      product.image = mainImageFile.path;
     }
 
     // Handle Hover Image
     const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
     if (hoverImageFile) {
-      product.hover_image = `${baseUrl}${hoverImageFile.filename}`;
+      product.hover_image = hoverImageFile.path;
     }
 
     // Handle Variants
-    // Strategy: Rebuild variants array based on input
-    // If variants array is empty in input, clear it? Or just update if provided?
-    // Frontend sends all variants every time, so we can overwrite.
-    
     if (variants && variants.length > 0) {
       const processedVariants = variants.map((v, index) => {
         const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
         let variantImageUrl = null;
         
         if (variantFile) {
-          variantImageUrl = `${baseUrl}${variantFile.filename}`;
+          variantImageUrl = variantFile.path;
         } else if (v.image && v.image.trim() !== '') {
            variantImageUrl = v.image; // Keep existing image URL
         }
