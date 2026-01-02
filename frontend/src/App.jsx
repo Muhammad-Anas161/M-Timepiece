@@ -72,11 +72,7 @@ function App() {
         <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
           <Routes>
-const MainLayout = lazy(() => import('./layouts/MainLayout'));
 
-// ... existing imports ...
-
-// ... inside Routes ...
 
             {/* Public Routes with MainLayout */}
             <Route element={<MainLayout />}>

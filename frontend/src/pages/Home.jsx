@@ -12,6 +12,7 @@ import InstagramFeed from '../components/home/InstagramFeed';
 
 const Home = () => {
   return (
+    <>
       <SEO 
         title="M Timepiece | Premium Multi-Brand Watch Store" 
         description="Discover our curated collection of premium watches. From classic elegance to modern smart technology. Every Style. Every Budget."
@@ -24,6 +25,7 @@ const Home = () => {
       <FlashSale />
       <Reviews />
       <InstagramFeed />
+    </>
   );
 };
 
