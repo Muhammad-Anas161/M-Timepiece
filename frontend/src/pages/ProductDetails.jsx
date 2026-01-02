@@ -161,7 +161,9 @@ const ProductDetails = () => {
                 </div>
                 <div>
                   <span className="font-medium text-gray-900">Category:</span>
-                  <span className="ml-2 text-gray-600">{product.category}</span>
+                  <span className="ml-2 text-gray-600">
+                    {Array.isArray(product.category) ? product.category.join(', ') : product.category}
+                  </span>
                 </div>
               </div>
             </div>
