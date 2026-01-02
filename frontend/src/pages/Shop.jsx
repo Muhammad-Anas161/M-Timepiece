@@ -55,9 +55,15 @@ const Shop = () => {
     const cats = new Set();
     products.forEach(p => {
       if (Array.isArray(p.category)) {
-        p.category.forEach(c => cats.add(c));
+        p.category.forEach(c => {
+           if (typeof c === 'string') {
+             c.split(',').forEach(subC => cats.add(subC.trim()));
+           } else {
+             cats.add(c);
+           }
+        });
       } else if (p.category) {
-        cats.add(p.category);
+        p.category.split(',').forEach(c => cats.add(c.trim()));
       }
     });
     return Array.from(cats).sort();

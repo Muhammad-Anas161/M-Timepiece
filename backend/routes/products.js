@@ -31,8 +31,11 @@ const formatCategories = (input) => {
   if (!input) return ['Unisex'];
   
   // Handle array input or comma-separated string
-  const categories = Array.isArray(input) ? input : input.split(',');
+  let categories = Array.isArray(input) ? input : input.split(',');
   
+  // Ensure we split any strings that might harbor commas (e.g. ["Men, Luxury"])
+  categories = categories.flatMap(c => typeof c === 'string' ? c.split(',') : c);
+
   return [...new Set(categories.map(cat => {
     return cat.trim()
       .toLowerCase()
