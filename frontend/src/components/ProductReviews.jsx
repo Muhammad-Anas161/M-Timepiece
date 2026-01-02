@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+import { getProductReviews, addProductReview } from '../services/api';
+
 const ProductReviews = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState({ average: 0, total: 0 });
@@ -22,9 +24,7 @@ const ProductReviews = ({ productId }) => {
 
   const fetchReviews = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-      const response = await fetch(`${API_URL}/reviews/product/${productId}`);
-      const data = await response.json();
+      const data = await getProductReviews(productId);
       setReviews(data.reviews || []);
       setStats(data.stats || { average: 0, total: 0 });
     } catch (error) {
@@ -39,32 +39,21 @@ const ProductReviews = ({ productId }) => {
     setSubmitting(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-      const response = await fetch(`${API_URL}/reviews`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_id: productId,
-          ...formData
-        })
+      const response = await addProductReview({
+        product_id: productId,
+        ...formData
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success('Review submitted successfully!');
-        setFormData({
-          user_name: '',
-          user_email: '',
-          rating: 5,
-          title: '',
-          comment: ''
-        });
-        setShowForm(false);
-        fetchReviews(); // Refresh reviews
-      } else {
-        toast.error(data.message || 'Failed to submit review');
-      }
+      toast.success('Review submitted successfully!');
+      setFormData({
+        user_name: '',
+        user_email: '',
+        rating: 5,
+        title: '',
+        comment: ''
+      });
+      setShowForm(false);
+      fetchReviews(); // Refresh reviews
     } catch (error) {
       toast.error('Failed to submit review');
     } finally {

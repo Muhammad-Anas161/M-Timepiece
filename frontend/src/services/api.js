@@ -100,3 +100,17 @@ export const createOrder = async (orderData) => {
   });
   return handleResponse(response);
 };
+
+export const getProductReviews = async (productId) => {
+  const response = await fetch(`${API_URL}/reviews/product/${productId}`);
+  return handleResponse(response);
+};
+
+export const addProductReview = async (reviewData) => {
+  const response = await fetch(`${API_URL}/reviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(reviewData),
+  });
+  return handleResponse(response);
+};
