@@ -56,7 +56,8 @@ const ProductDetails = () => {
     if (!product) return [];
     const images = [
       product.image,
-      ...(product.images || [])
+      ...(product.images || []),
+      ...(product.variants || []).map(v => v.image)
     ].filter(Boolean);
     return [...new Set(images)];
   }, [product]);
