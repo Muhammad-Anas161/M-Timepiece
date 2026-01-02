@@ -15,6 +15,7 @@ import ScrollToTop from './components/ScrollToTop';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
+const MainLayout = lazy(() => import('./layouts/MainLayout'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
 const Analytics = lazy(() => import('./pages/admin/Analytics'));
