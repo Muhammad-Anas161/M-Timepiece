@@ -27,6 +27,19 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
+const formatCategories = (input) => {
+  if (!input) return ['Unisex'];
+  
+  // Handle array input or comma-separated string
+  const categories = Array.isArray(input) ? input : input.split(',');
+  
+  return [...new Set(categories.map(cat => {
+    return cat.trim()
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase()); // Title Case
+  }).filter(Boolean))];
+};
+
 // Get all products
 router.get('/', async (req, res) => {
   const { category, search, brand } = req.query;
@@ -129,7 +142,7 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
       price,
       description,
       image: mainImage,
-      category,
+      category: formatCategories(category),
       brand: brand || 'M Timepiece',
       variants: processedVariants
     });
