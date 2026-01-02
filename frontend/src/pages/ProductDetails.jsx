@@ -88,6 +88,17 @@ const ProductDetails = () => {
   }
 
   if (error || !product) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+         {error && <p className="text-red-500 mb-4">{error}</p>}
+        <Link to="/" className="text-indigo-600 hover:text-indigo-500 flex items-center">
+          <ArrowLeft className="mr-2 h-5 w-5" />
+          Back to Home
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-900 transition-colors duration-200 min-h-screen">
