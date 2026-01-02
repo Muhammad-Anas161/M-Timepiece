@@ -31,7 +31,7 @@ const ProductForm = () => {
             price: product.price,
             description: product.description,
             features: product.features,
-            category: product.category || 'Unisex',
+            category: Array.isArray(product.category) ? product.category.join(', ') : (product.category || 'Unisex'),
             brand: product.brand || '',
           });
           setCurrentImageUrl(product.image);
@@ -154,14 +154,14 @@ const ProductForm = () => {
           </div>
           
           <div className="sm:col-span-6">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Categories (comma separated)</label>
             <input 
               type="text" 
               id="category" 
               name="category" 
               value={formData.category} 
               onChange={handleChange} 
-              placeholder="e.g. Men, Women, Unisex, Luxury"
+              placeholder="e.g. Men, Luxury, Automatic"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" 
             />
           </div>

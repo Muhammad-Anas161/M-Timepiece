@@ -52,7 +52,14 @@ const Shop = () => {
 
   // Derived Data: Unique Categories
   const allCategories = useMemo(() => {
-    const cats = new Set(products.map(p => p.category));
+    const cats = new Set();
+    products.forEach(p => {
+      if (Array.isArray(p.category)) {
+        p.category.forEach(c => cats.add(c));
+      } else if (p.category) {
+        cats.add(p.category);
+      }
+    });
     return Array.from(cats).sort();
   }, [products]);
 
@@ -72,8 +79,11 @@ const Shop = () => {
       }
 
       // Category Filter
-      if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
-        return false;
+      if (selectedCategories.length > 0) {
+        // Handle both array and string (legacy) category structure
+        const productCats = Array.isArray(product.category) ? product.category : [product.category];
+        const hasCategory = productCats.some(cat => selectedCategories.includes(cat));
+        if (!hasCategory) return false;
       }
 
       // Brand Filter
@@ -235,7 +245,9 @@ const Shop = () => {
                     <div className="p-4 bg-white dark:bg-gray-800">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{product.category}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            {Array.isArray(product.category) ? product.category[0] : product.category}
+                          </p>
                           <h3 className="text-sm font-bold text-gray-900 dark:text-white mt-1">
                             <Link to={`/product/${product._id || product.id}`}>
                               <span aria-hidden="true" className="absolute inset-0" />

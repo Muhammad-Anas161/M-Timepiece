@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
 
   description: String,
   features: String,
-  category: { type: String, default: 'Unisex' },
+  category: { type: [String], default: ['Unisex'] },
   brand: { type: String, default: 'M Timepiece' },
   variants: [variantSchema]
 }, { timestamps: true });

@@ -124,7 +124,9 @@ const ProductDetails = () => {
             <div className="lg:col-span-5 lg:col-start-8">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">{product.category}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    {Array.isArray(product.category) ? product.category.join(', ') : product.category}
+                  </p>
                   <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mt-1">{product.name}</h1>
                 </div>
               </div>
@@ -305,7 +307,9 @@ const ProductDetails = () => {
                     </div>
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Category</dt>
-                      <dd className="text-sm font-medium text-gray-900 dark:text-white">{product.category}</dd>
+                      <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                        {Array.isArray(product.category) ? product.category.join(', ') : product.category}
+                      </dd>
                     </div>
                     <div className="py-3 flex justify-between">
                       <dt className="text-sm text-gray-500">Material</dt>

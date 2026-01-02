@@ -33,7 +33,15 @@ router.get('/', async (req, res) => {
   const filter = {};
 
   if (category) {
-    filter.category = category;
+    // Check if product's category array contains the requested category
+    // Mongoose handles { field: value } for arrays as "does array contain value?"
+    // If multiple categories provided (comma separated), match ANY
+    const cats = category.split(',').map(c => c.trim());
+    if (cats.length > 1) {
+       filter.category = { $in: cats };
+    } else {
+       filter.category = cats[0];
+    }
   }
 
   if (brand) {
@@ -164,7 +172,7 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
     if (name) product.name = name;
     if (price) product.price = price;
     if (description) product.description = description;
-    if (category) product.category = category;
+    if (category) product.category = formatCategories(category);
     if (brand) product.brand = brand;
     if (req.body.features) product.features = req.body.features;
 
