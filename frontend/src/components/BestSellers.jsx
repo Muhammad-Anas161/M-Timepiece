@@ -30,9 +30,9 @@ const BestSellers = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {products.map((product) => (
-            <div key={product.id} className="group">
+            <div key={product._id || product.id} className="group">
               <div className="relative overflow-hidden bg-white aspect-[3/4] mb-6 rounded-lg shadow-sm">
-                <Link to={`/product/${product.id}`}>
+                <Link to={`/product/${product._id || product.id}`}>
                   <img 
                     src={product.image} 
                     alt={product.name} 
@@ -55,7 +55,7 @@ const BestSellers = () => {
                 </button>
               </div>
               <div className="text-center">
-                <Link to={`/product/${product.id}`}>
+                <Link to={`/product/${product._id || product.id}`}>
                   <h3 className="text-lg font-medium text-gray-900 mb-1 font-serif hover:text-gray-600 transition-colors">{product.name}</h3>
                 </Link>
                 <p className="text-gray-500">{formatPrice(product.price)}</p>

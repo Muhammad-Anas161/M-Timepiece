@@ -209,9 +209,9 @@ const Shop = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700">
+                  <div key={product._id || product.id} className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700">
                     <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200 group-hover:opacity-90 lg:aspect-none lg:h-80 relative">
-                      <Link to={`/product/${product.id}`}>
+                      <Link to={`/product/${product._id || product.id}`}>
                         <img
                           src={product.image}
                           alt={product.name}
@@ -242,7 +242,7 @@ const Shop = () => {
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{product.category}</p>
                           <h3 className="text-sm font-bold text-gray-900 dark:text-white mt-1">
-                            <Link to={`/product/${product.id}`}>
+                            <Link to={`/product/${product._id || product.id}`}>
                               <span aria-hidden="true" className="absolute inset-0" />
                               {product.name}
                             </Link>
