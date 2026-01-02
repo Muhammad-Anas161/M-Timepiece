@@ -145,13 +145,15 @@ router.post('/', verifyToken, isAdmin, upload.any(), [
   }
 });
 
+import Review from '../models/Review.js';
+
 // Update product and variants (Protected)
 router.put('/:id', verifyToken, isAdmin, upload.any(), [
   body('name').optional().isString().notEmpty(),
   body('price').optional().isFloat({ min: 0 }),
   body('description').optional().isString(),
   body('category').optional().isString().notEmpty()
-], (req, res) => {
+], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
      if (req.files) {
@@ -164,128 +166,116 @@ router.put('/:id', verifyToken, isAdmin, upload.any(), [
   let variants = [];
   try {
     variants = req.body.variants ? JSON.parse(req.body.variants) : [];
-  } catch (e) {}
+  } catch (e) {
+    console.error('Error parsing variants JSON:', e);
+  }
 
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
   const host = req.get('host');
   const baseUrl = `${protocol}://${host}/uploads/`;
 
-  let image = undefined;
-  let hover_image = undefined;
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
 
-  const mainImageFile = req.files.find(f => f.fieldname === 'image');
-  if (mainImageFile) {
-    image = `${baseUrl}${mainImageFile.filename}`;
-  }
+    // Update fields if provided
+    if (name) product.name = name;
+    if (price) product.price = price;
+    if (description) product.description = description;
+    if (category) product.category = category;
+    if (brand) product.brand = brand;
+    if (req.body.features) product.features = req.body.features;
 
-  const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
-  if (hoverImageFile) {
-    hover_image = `${baseUrl}${hoverImageFile.filename}`;
-  }
+    // Handle Main Image
+    const mainImageFile = req.files.find(f => f.fieldname === 'image');
+    if (mainImageFile) {
+      product.image = `${baseUrl}${mainImageFile.filename}`;
+      // Ideally delete old image here if exists
+    }
 
-  let query = 'UPDATE products SET name = COALESCE(?, name), price = COALESCE(?, price), description = COALESCE(?, description), category = COALESCE(?, category), brand = COALESCE(?, brand)';
-  const params = [name, price, description, category, brand];
+    // Handle Hover Image
+    const hoverImageFile = req.files.find(f => f.fieldname === 'hover_image');
+    if (hoverImageFile) {
+      product.hover_image = `${baseUrl}${hoverImageFile.filename}`;
+    }
 
-  if (image) {
-    query += ', image = ?';
-    params.push(image);
-  }
-
-  if (hover_image) {
-    query += ', hover_image = ?';
-    params.push(hover_image);
-  } else if (req.body.imageUrl) {
-     // If no new file but imageUrl is provided (retaining old image), we don't need to update the column unless we want to explicit set it. 
-     // However, the standard usually is: if file provided, update. If not, keep old. 
-     // The frontend might explicitly send `imageUrl` to confirm the existing one not changed, but SQL `COALESCE` or just not updating it does the job.
-     // In this specific logic: params.push(image) only if image is defined. 
-  }
-
-  query += ' WHERE id = ?';
-  params.push(req.params.id);
-
-  db.run(query, params, function(err) {
-    if (err) return res.status(500).json({ error: err.message });
+    // Handle Variants
+    // Strategy: Rebuild variants array based on input
+    // If variants array is empty in input, clear it? Or just update if provided?
+    // Frontend sends all variants every time, so we can overwrite.
     
-    // Update variants: Delete all and re-insert (simplest strategy)
-    // IMPORTANT: We must perform DELETE even if variants.length is 0 (to allow clearing all variants)
-    db.run('DELETE FROM product_variants WHERE product_id = ?', [req.params.id], (err) => {
-      if (err) {
-        console.error("Error deleting old variants:", err.message);
-        // We continue? or fail? Failsafe: continue to at least update product info, but ideally warn.
-        // For now, let's log.
-      } else {
-        console.log(`Cleared variants for product ${req.params.id}`);
+    if (variants && variants.length > 0) {
+      const processedVariants = variants.map((v, index) => {
+        const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
+        let variantImageUrl = null;
         
-        if (variants.length > 0) {
-          const stmt = db.prepare('INSERT INTO product_variants (product_id, color, color_code, stock, price_modifier, image) VALUES (?, ?, ?, ?, ?, ?)');
-          
-          // Debugging log
-          console.log('Processing variants update:', JSON.stringify(variants, null, 2));
-
-          variants.forEach((v, index) => {
-             // Check if new file uploaded for this variant
-             const variantFile = req.files.find(f => f.fieldname === `variant_image_${index}`);
-             
-             // Explicit logic: 
-             let finalVariantImage = null;
-
-             if (variantFile) {
-               finalVariantImage = `${baseUrl}${variantFile.filename}`;
-             } else if (v.image && v.image.trim() !== '') {
-               finalVariantImage = v.image;
-             }
-
-             // Log to confirm what's being inserted
-             console.log(`Variant ${index} image: ${finalVariantImage}`);
-
-            stmt.run(req.params.id, v.color, v.color_code || '#000000', v.stock || 0, v.price_modifier || 0, finalVariantImage);
-          });
-          stmt.finalize();
+        if (variantFile) {
+          variantImageUrl = `${baseUrl}${variantFile.filename}`;
+        } else if (v.image && v.image.trim() !== '') {
+           variantImageUrl = v.image; // Keep existing image URL
         }
-      }
-    });
 
-    res.json({ message: 'Product updated' });
-  });
+        return {
+          color: v.color,
+          color_code: v.color_code || '#000000',
+          stock: v.stock || 0,
+          price_modifier: v.price_modifier || 0,
+          image: variantImageUrl
+        };
+      });
+      product.variants = processedVariants;
+    } else if (req.body.variants === '[]') {
+       // Explicitly cleared
+       product.variants = [];
+    }
+
+    await product.save();
+    res.json({ message: 'Product updated', product });
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Delete product (Protected)
-router.delete('/:id', verifyToken, isAdmin, (req, res) => {
-  db.run('DELETE FROM products WHERE id = ?', [req.params.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
+router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    
+    // Also delete associated reviews
+    await Review.deleteMany({ product_id: req.params.id });
+
+    // Ideally delete images from disk too
+
     res.json({ message: 'Product deleted' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get product reviews
-router.get('/:id/reviews', (req, res) => {
-  const query = `
-    SELECT id, user_name, rating, comment, created_at 
-    FROM reviews 
-    WHERE product_id = ? 
-    ORDER BY created_at DESC
-  `;
-  
-  db.all(query, [req.params.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.get('/:id/reviews', async (req, res) => {
+  try {
+    const reviews = await Review.find({ product_id: req.params.id }).sort({ created_at: -1 });
     
-    // Also get average rating and count
-    db.get(
-      'SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM reviews WHERE product_id = ?',
-      [req.params.id],
-      (err2, stats) => {
-        if (err2) return res.status(500).json({ error: err2.message });
-        res.json({
-          reviews: rows,
-          stats: {
-            average_rating: stats.avg_rating ? parseFloat(stats.avg_rating.toFixed(1)) : 0,
-            review_count: stats.review_count
-          }
-        });
-      }
-    );
-  });
+    // Calculate stats
+    const stats = {
+      average_rating: 0,
+      review_count: reviews.length
+    };
+
+    if (reviews.length > 0) {
+      const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+      stats.average_rating = parseFloat((sum / reviews.length).toFixed(1));
+    }
+
+    res.json({ reviews, stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Submit product review
@@ -293,7 +283,7 @@ router.post('/:id/reviews', [
   body('user_name').isString().trim().notEmpty().withMessage('Name is required'),
   body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
   body('comment').optional().isString().trim()
-], (req, res) => {
+], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -302,37 +292,44 @@ router.post('/:id/reviews', [
   const { user_name, rating, comment } = req.body;
   const product_id = req.params.id;
 
-  db.run(
-    'INSERT INTO reviews (product_id, user_name, rating, comment) VALUES (?, ?, ?, ?)',
-    [product_id, user_name, rating, comment || ''],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ 
-        id: this.lastID, 
-        product_id, 
-        user_name, 
-        rating, 
-        comment,
-        message: 'Review submitted successfully' 
-      });
-    }
-  );
+  try {
+    const review = new Review({
+      product_id,
+      user_name,
+      rating,
+      comment: comment || ''
+    });
+
+    await review.save();
+    
+    res.json({ 
+      id: review._id, 
+      product_id, 
+      user_name, 
+      rating, 
+      comment,
+      message: 'Review submitted successfully' 
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get related products (same category, excluding current product)
-router.get('/:id/related', (req, res) => {
-  const query = `
-    SELECT p2.* 
-    FROM products p1 
-    JOIN products p2 ON p1.category = p2.category 
-    WHERE p1.id = ? AND p2.id != ? 
-    LIMIT 6
-  `;
-  
-  db.all(query, [req.params.id, req.params.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+router.get('/:id/related', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    const related = await Product.find({ 
+      category: product.category, 
+      _id: { $ne: product._id } 
+    }).limit(6);
+
+    res.json(related);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;
