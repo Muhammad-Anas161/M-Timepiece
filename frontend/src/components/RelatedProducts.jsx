@@ -21,7 +21,7 @@ const RelatedProducts = ({ productId, category, currentPrice }) => {
         const priceRange = currentPrice * 0.3; // 30% price range
         const related = data
           .filter(p => 
-            p.id !== parseInt(productId) && 
+            (p._id || p.id) !== productId && 
             Math.abs(p.price - currentPrice) <= priceRange
           )
           .slice(0, 4); // Show max 4 products
@@ -52,8 +52,8 @@ const RelatedProducts = ({ productId, category, currentPrice }) => {
       <h2 className="text-2xl font-bold text-gray-900 mb-8">You May Also Like</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => (
-          <div key={product.id} className="group">
-            <Link to={`/product/${product.id}`} className="block">
+          <div key={product._id || product.id} className="group">
+            <Link to={`/product/${product._id || product.id}`} className="block">
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3 relative">
                 <img
                   src={product.image}
@@ -73,7 +73,9 @@ const RelatedProducts = ({ productId, category, currentPrice }) => {
               <h3 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
                 {product.name}
               </h3>
-              <p className="text-sm text-gray-500 mb-1">{product.category}</p>
+              <p className="text-sm text-gray-500 mb-1">
+                {Array.isArray(product.category) ? product.category[0] : (product.category?.split(',')[0] || 'Category')}
+              </p>
               <p className="font-bold text-gray-900">{formatPrice(product.price)}</p>
             </Link>
           </div>

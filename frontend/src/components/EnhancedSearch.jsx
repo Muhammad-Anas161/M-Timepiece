@@ -100,8 +100,8 @@ const EnhancedSearch = ({ onClose }) => {
               <div className="p-2">
                 {results.map((product) => (
                   <button
-                    key={product.id}
-                    onClick={() => handleProductClick(product.id)}
+                    key={product._id || product.id}
+                    onClick={() => handleProductClick(product._id || product.id)}
                     className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors text-left"
                   >
                     <img
@@ -109,9 +109,11 @@ const EnhancedSearch = ({ onClose }) => {
                       alt={product.name}
                       className="w-16 h-16 object-cover rounded"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0" title={product.name}>
                       <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                      <p className="text-sm text-gray-500">{product.category}</p>
+                      <p className="text-sm text-gray-500">
+                        {Array.isArray(product.category) ? product.category[0] : (product.category?.split(',')[0] || 'Category')}
+                      </p>
                     </div>
                     <p className="font-bold text-gray-900">{formatPrice(product.price)}</p>
                   </button>

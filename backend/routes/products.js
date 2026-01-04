@@ -77,6 +77,37 @@ router.get('/', async (req, res) => {
 });
 
 // Get single product with variants
+// Export all products (Protected)
+router.get('/export', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const products = await Product.find({});
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Import products (Protected)
+router.post('/import', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const { products } = req.body;
+    if (!Array.isArray(products)) {
+      return res.status(400).json({ error: 'Invalid data format. Expected an array of products.' });
+    }
+
+    // Clean data for insertion (remove existing IDs if they cause conflict, or just upsert)
+    const cleanedProducts = products.map(p => {
+      const { _id, id, created_at, updated_at, ...rest } = p;
+      return rest;
+    });
+
+    await Product.insertMany(cleanedProducts);
+    res.json({ message: `Successfully imported ${cleanedProducts.length} products` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -86,8 +117,6 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-import { verifyToken, isAdmin } from '../middleware/auth.js';
 
 // Create product with variants (Protected)
 router.post('/', verifyToken, isAdmin, upload.any(), [

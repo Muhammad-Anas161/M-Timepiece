@@ -56,8 +56,25 @@ const ProductForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Cleanup object URLs to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (imageFile && imageFile instanceof File) URL.revokeObjectURL(imageFile.preview);
+      galleryFiles.forEach(file => {
+        if (file instanceof File) URL.revokeObjectURL(file.preview);
+      });
+      variants.forEach(v => {
+        if (v.imageFile && v.imageFile instanceof File) URL.revokeObjectURL(v.imageFile.preview);
+      });
+    };
+  }, [imageFile, galleryFiles, variants]);
+
   const handleFileChange = (e) => {
-    setImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      file.preview = URL.createObjectURL(file);
+      setImageFile(file);
+    }
   };
 
   // Variant Handlers
@@ -73,6 +90,13 @@ const ProductForm = () => {
 
   const handleVariantChange = (index, field, value) => {
     const newVariants = [...variants];
+    if (field === 'imageFile' && value instanceof File) {
+      // Revoke old preview if exists
+      if (newVariants[index].imageFile && newVariants[index].imageFile.preview) {
+        URL.revokeObjectURL(newVariants[index].imageFile.preview);
+      }
+      value.preview = URL.createObjectURL(value);
+    }
     newVariants[index][field] = value;
     setVariants(newVariants);
   };
@@ -211,9 +235,16 @@ const ProductForm = () => {
           <div className="sm:col-span-3">
             <label htmlFor="image" className="block text-sm font-medium text-gray-700">Thumbnail Image (For Shop Card)</label>
             <div className="mt-1 flex items-center gap-4">
-               <input type="file" name="image" id="image" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-               {currentImageUrl && !imageFile && (
-                <img src={currentImageUrl} alt="Current Thumbnail" className="h-16 w-16 object-cover rounded-md border" />
+               <input type="file" name="image" id="image" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+               {(imageFile?.preview || currentImageUrl) && (
+                <div className="relative group">
+                  <img src={imageFile?.preview || currentImageUrl} alt="Preview" className="h-16 w-16 object-cover rounded-md border" />
+                  {imageFile && (
+                    <div className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-0.5 shadow-sm">
+                      <Plus size={10} className="rotate-45" />
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -227,11 +258,42 @@ const ProductForm = () => {
                  id="gallery_images" 
                  accept="image/*" 
                  multiple
-                 onChange={(e) => setGalleryFiles(Array.from(e.target.files))} 
+                 onChange={(e) => {
+                   const files = Array.from(e.target.files).map(file => {
+                     file.preview = URL.createObjectURL(file);
+                     return file;
+                   });
+                   setGalleryFiles(files);
+                 }} 
                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" 
                />
                <p className="mt-1 text-xs text-gray-500">Select multiple files to upload different angles.</p>
             </div>
+            
+            {/* New Gallery Preview */}
+            {galleryFiles.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs font-medium text-green-700 mb-2">New Images to Upload:</p>
+                <div className="flex flex-wrap gap-4">
+                  {galleryFiles.map((file, idx) => (
+                    <div key={idx} className="relative group">
+                      <img src={file.preview} alt={`New Gallery ${idx}`} className="h-20 w-20 object-cover rounded-md border-2 border-green-500" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          URL.revokeObjectURL(file.preview);
+                          setGalleryFiles(prev => prev.filter((_, i) => i !== idx));
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
+                        title="Remove Image"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* Existing Gallery Preview */}
             {existingGalleryImages.length > 0 && (
@@ -335,20 +397,27 @@ const ProductForm = () => {
                   
                   <div className="mt-4 pt-4 border-t border-gray-200">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Variant Image (Required)</label>
-                      <div className="flex items-center gap-4">
+                       <div className="flex items-center gap-4">
                         <input
                           type="file"
                           accept="image/*"
                           onChange={(e) => handleVariantChange(index, 'imageFile', e.target.files[0])}
                           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                         />
-                         {variant.image && !variant.imageFile && (
+                         {(variant.image || variant.imageFile?.preview) && (
                             <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border">
-                                <span className="text-xs text-gray-500">Current:</span>
-                                <img src={variant.image} alt={variant.color} className="h-8 w-8 object-cover rounded" />
+                                <span className="text-xs text-gray-500">{variant.imageFile ? 'New:' : 'Current:'}</span>
+                                <img src={variant.imageFile?.preview || variant.image} alt={variant.color} className={`h-10 w-10 object-cover rounded ${variant.imageFile ? 'border-2 border-green-500' : ''}`} />
                                 <button
                                   type="button"
-                                  onClick={() => handleVariantChange(index, 'image', '')}
+                                  onClick={() => {
+                                    if (variant.imageFile) {
+                                      URL.revokeObjectURL(variant.imageFile.preview);
+                                      handleVariantChange(index, 'imageFile', null);
+                                    } else {
+                                      handleVariantChange(index, 'image', '');
+                                    }
+                                  }}
                                   className="text-red-500 hover:text-red-700 ml-1"
                                   title="Remove Image"
                                 >

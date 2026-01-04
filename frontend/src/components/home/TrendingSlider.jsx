@@ -59,7 +59,7 @@ const TrendingSlider = () => {
           slidesPerView={1}
           navigation
           pagination={{ clickable: true }}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           breakpoints={{
             640: { slidesPerView: 2 },
             768: { slidesPerView: 3 },
@@ -68,30 +68,36 @@ const TrendingSlider = () => {
           className="pb-12"
         >
           {products.map((product) => (
-            <SwiperSlide key={product.id}>
+            <SwiperSlide key={product._id || product.id}>
               <motion.div 
                 whileHover={{ y: -5 }}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group h-full"
               >
-                <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
-                  <img 
-                    src={product.image || 'https://via.placeholder.com/400x500'} 
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  
-                  {/* Overlay Actions */}
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 cursor-pointer">
+                  <Link to={`/product/${product._id || product.id}`}>
+                    <img 
+                      src={product.image || 'https://via.placeholder.com/400x500'} 
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    
+                    {/* Overlay Background only */}
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    </div>
+                  </Link>
+
+                  {/* Overlay Actions (Separate so they don't block the Link but are visible on hover) */}
+                  <div className="absolute inset-0 flex items-center justify-center gap-3 pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={(e) => handleAddToCart(e, product)}
-                      className="p-3 bg-white text-gray-900 rounded-full hover:bg-indigo-600 hover:text-white transition-colors shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300"
+                      className="p-3 bg-white text-gray-900 rounded-full hover:bg-indigo-600 hover:text-white transition-colors shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300 pointer-events-auto"
                       title="Add to Cart"
                     >
                       <ShoppingBag size={20} />
                     </button>
                     <Link 
-                      to={`/product/${product.id}`}
-                      className="p-3 bg-white text-gray-900 rounded-full hover:bg-indigo-600 hover:text-white transition-colors shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
+                      to={`/product/${product._id || product.id}`}
+                      className="p-3 bg-white text-gray-900 rounded-full hover:bg-indigo-600 hover:text-white transition-colors shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75 pointer-events-auto"
                       title="View Details"
                     >
                       <Eye size={20} />
@@ -107,8 +113,10 @@ const TrendingSlider = () => {
                 </div>
 
                 <div className="p-4 bg-white dark:bg-gray-800">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{product.category}</p>
-                  <Link to={`/product/${product.id}`}>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                    {Array.isArray(product.category) ? product.category[0] : (product.category?.split(',')[0] || 'Category')}
+                  </p>
+                  <Link to={`/product/${product._id || product.id}`}>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                       {product.name}
                     </h3>

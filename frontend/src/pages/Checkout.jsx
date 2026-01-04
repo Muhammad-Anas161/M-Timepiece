@@ -12,7 +12,7 @@ const Checkout = () => {
   const { formatPrice } = usePrice();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('COD/WhatsApp');
+  const [paymentMethod, setPaymentMethod] = useState('Bank Transfer');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -55,22 +55,16 @@ const Checkout = () => {
       const orderNumber = orderResult.orderNumber || orderResult.id;
       clearCart();
 
-      // Unified Success Handler
-      if (paymentMethod === 'COD/WhatsApp') {
-        const message = `Hi, I would like to place an order.\n\nOrder ID: #${orderNumber}\nName: ${formData.name}\nAddress: ${formData.street}, ${formData.city}\nTotal: ${formatPrice(finalTotal)}\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`;
-        const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
-        
-        toast.success(`Order #${orderNumber} placed! Opening WhatsApp...`);
+      // Redirect to WhatsApp with Order Details
+      const message = `Hi, I have placed an order via Bank Transfer.\n\nOrder ID: #${orderNumber}\nName: ${formData.name}\nAddress: ${formData.street}, ${formData.city}\nTotal Amount: ${formatPrice(finalTotal)}\n\nItems:\n${cartItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}\n\nPlease share bank account details for payment.`;
+      const whatsappUrl = `https://wa.me/923123637833?text=${encodeURIComponent(message)}`;
+      
+      toast.success(`Order #${orderNumber} placed! Redirecting to WhatsApp...`);
+      setTimeout(() => {
         window.open(whatsappUrl, '_blank');
         navigate('/');
-        
-      } else if (paymentMethod === 'Bank Transfer') {
-        toast.success(`Order #${orderNumber} Placed! Check email for bank details.`);
-        navigate('/');
-      } else if (paymentMethod === 'Credit Card') {
-        toast.success(`Order #${orderNumber} placed successfully!`);
-        navigate('/');
-      }
+      }, 1500);
+
     } catch (error) {
       console.error('Checkout failed', error);
       toast.error('Failed to place order. Please try again.');
@@ -232,53 +226,14 @@ const Checkout = () => {
                   {/* Payment Method Selection */}
                   <div>
                     <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Payment Method</h3>
-                    <div className="mt-4 space-y-4">
-                      {/* COD/WhatsApp Combined - Top Priority */}
+                    <div className="mt-4">
                       <div className="flex items-center p-4 border-2 border-indigo-500 rounded-lg bg-indigo-50 dark:bg-indigo-900/20">
-                        <input
-                          id="cod-whatsapp"
-                          name="paymentMethod"
-                          type="radio"
-                          checked={paymentMethod === 'COD/WhatsApp'}
-                          onChange={() => setPaymentMethod('COD/WhatsApp')}
-                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                        />
-                        <label htmlFor="cod-whatsapp" className="ml-3 block text-sm font-medium text-gray-900 dark:text-white flex items-center">
-                          <MessageCircle className="mr-2 h-5 w-5 text-indigo-600" />
-                          Cash on Delivery + WhatsApp Confirmation (Recommended)
-                        </label>
-                      </div>
-                      
-                      {/* Bank Transfer */}
-                      <div className="flex items-center">
-                        <input
-                          id="bank-transfer"
-                          name="paymentMethod"
-                          type="radio"
-                          checked={paymentMethod === 'Bank Transfer'}
-                          onChange={() => setPaymentMethod('Bank Transfer')}
-                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                        />
-                        <label htmlFor="bank-transfer" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                          <Mail className="mr-2 h-5 w-5 text-gray-400" />
-                          Bank Transfer
-                        </label>
-                      </div>
-                      
-                      {/* Credit Card */}
-                      <div className="flex items-center">
-                        <input
-                          id="credit-card"
-                          name="paymentMethod"
-                          type="radio"
-                          checked={paymentMethod === 'Credit Card'}
-                          onChange={() => setPaymentMethod('Credit Card')}
-                          className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                        />
-                        <label htmlFor="credit-card" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                          <CreditCard className="mr-2 h-5 w-5 text-gray-400" />
-                          Credit Card (Coming Soon)
-                        </label>
+                        <div className="flex items-center">
+                          <MessageCircle className="mr-3 h-6 w-6 text-indigo-600" />
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">Bank Transfer</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

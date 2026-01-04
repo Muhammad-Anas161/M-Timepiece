@@ -2,6 +2,7 @@ import React from 'react';
 import { Facebook, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import toast from 'react-hot-toast';
 
 const Footer = () => {
   const { theme } = useTheme();
@@ -47,15 +48,41 @@ const Footer = () => {
             <p className="text-sm text-gray-400 mb-4">
               Subscribe for exclusive offers and updates!
             </p>
-            <form className="flex flex-col gap-3">
+            <form 
+              className="flex flex-col gap-3"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const email = e.target.email.value;
+                if (!email) return;
+                
+                try {
+                  const btn = e.target.querySelector('button');
+                  btn.disabled = true;
+                  btn.innerText = 'Subscribing...';
+                  
+                  await import('../services/api').then(api => api.subscribeNewsletter(email));
+                  
+                  toast.success('Successfully subscribed to newsletter!');
+                  e.target.reset();
+                } catch (error) {
+                  toast.error(error.message || 'Failed to subscribe');
+                } finally {
+                  const btn = e.target.querySelector('button');
+                  btn.disabled = false;
+                  btn.innerText = 'Subscribe';
+                }
+              }}
+            >
               <input 
+                name="email"
                 type="email" 
                 placeholder="Enter your email" 
+                required
                 className="bg-transparent border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
               />
               <button 
                 type="submit" 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Subscribe
               </button>

@@ -114,3 +114,31 @@ export const addProductReview = async (reviewData) => {
   });
   return handleResponse(response);
 };
+
+// Backup & Restore
+export const exportProducts = async () => {
+  const response = await fetch(`${API_URL}/products/export`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+};
+
+export const importProducts = async (products) => {
+  const response = await fetch(`${API_URL}/products/import`, {
+    method: 'POST',
+    headers: { 
+      ...getHeaders(),
+      'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify({ products }),
+  });
+  return handleResponse(response);
+};
+export const subscribeNewsletter = async (email) => {
+  const response = await fetch(`${API_URL}/newsletter/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  return handleResponse(response);
+};

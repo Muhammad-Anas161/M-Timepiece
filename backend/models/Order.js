@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   zip: String,
   total: { type: Number, required: true },
   status: { type: String, default: 'Pending' },
-  payment_method: { type: String, default: 'Credit Card' },
+  payment_method: { type: String, default: 'Bank Transfer' },
   order_number: { type: String, unique: true },
   items: [orderItemSchema]
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
