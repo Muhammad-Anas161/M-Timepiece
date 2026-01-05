@@ -2,7 +2,9 @@ import express from 'express';
 import Product from '../models/Product.js';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { body, validationResult } from 'express-validator';
+import { verifyToken, isAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
