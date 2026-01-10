@@ -1,5 +1,5 @@
 // Use strict production check to ignore potentially stale Vercel env vars
-const API_URL = import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api';
+const API_URL = import.meta.env.MODE === 'production' ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' : 'http://localhost:3000/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
