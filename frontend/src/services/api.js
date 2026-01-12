@@ -135,10 +135,20 @@ export const importProducts = async (products) => {
   return handleResponse(response);
 };
 export const subscribeNewsletter = async (email) => {
-  const response = await fetch(`${API_URL}/newsletter/subscribe`, {
+  const res = await fetch(`${API_URL}/newsletter/subscribe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email })
   });
-  return handleResponse(response);
+  return res.json();
+};
+
+export const sendChatMessage = async (message, history = []) => {
+  const res = await fetch(`${API_URL}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, history })
+  });
+  if (!res.ok) throw new Error('AI Chat failed');
+  return res.json();
 };

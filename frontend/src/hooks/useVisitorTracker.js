@@ -14,7 +14,7 @@ const useVisitorTracker = () => {
         const screenRes = `${window.screen.width}x${window.screen.height}`;
         
         // Force Koyeb URL in production
-        const baseUrl = import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api';
+        const baseUrl = import.meta.env.MODE === 'production' ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' : 'http://localhost:3000/api';
         await fetch(`${baseUrl}/tracking/log`, {
           method: 'POST',
           headers: {

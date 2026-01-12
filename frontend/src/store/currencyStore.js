@@ -25,7 +25,7 @@ const useCurrencyStore = create(
           // For now, let's fetch always on app start.
           
           // Force Koyeb URL in production to avoid stale env vars
-          const API_URL = import.meta.env.MODE === 'production' ? 'https://dual-cynthie-mtimepiece-35857b73.koyeb.app/api' : 'http://localhost:3000/api';
+          const API_URL = import.meta.env.MODE === 'production' ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' : 'http://localhost:3000/api';
           const res = await fetch(`${API_URL}/location`);
           
           if (!res.ok) {

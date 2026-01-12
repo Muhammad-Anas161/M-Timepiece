@@ -17,6 +17,7 @@ import couponsRoutes from './routes/coupons.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import trackingRoutes from './routes/tracking.js';
 import locationRoutes from './routes/location.js';
+import chatRoutes from './routes/chat.js';
 
 import connectDB from './config/db.js';
 
@@ -70,6 +71,7 @@ app.use('/api/coupons', couponsRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/location', locationRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
