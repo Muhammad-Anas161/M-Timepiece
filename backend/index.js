@@ -33,11 +33,29 @@ const PORT = process.env.PORT || 3000;
 // Trust proxy is required for Railway/Vercel to correctly identify HTTPS protocol
 app.set('trust proxy', 1);
 
-// Middleware - CORS configuration for production
+// Middleware - CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://m-timepiece.vercel.app',
+  'https://watch-junction.vercel.app'
+];
+
 app.use(cors({
-  origin: '*',
-  credentials: false
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      // In dev, allow all for easier testing
+      if (process.env.NODE_ENV === 'development') return callback(null, true);
+      return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 app.use(compression());
 
@@ -73,6 +91,22 @@ app.use('/api/chat', chatRoutes);
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err);
+  
+  // Ensure CORS headers are present even on errors
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
+
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+    message: err.message
+  });
 });
 
 // Start server
