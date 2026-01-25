@@ -5,7 +5,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 
 const router = express.Router();
-const SECRET_KEY = process.env.JWT_SECRET || 'm_timepiece_dev_secret_2024';
+// Secret loaded dynamically at runtime
 
 router.post('/login', [
   body('username').isString().trim().notEmpty(),
@@ -27,7 +27,7 @@ router.post('/login', [
 
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role, email: user.email }, 
-      SECRET_KEY, 
+      process.env.JWT_SECRET || 'm_timepiece_dev_secret_2024', 
       { expiresIn: '24h' }
     );
     res.json({ 

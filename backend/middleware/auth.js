@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET_KEY = process.env.JWT_SECRET || 'm_timepiece_dev_secret_2024';
+// Secret evaluated dynamically in verifyToken
 
 export const verifyToken = (req, res, next) => {
   const token = req.headers['authorization'];
@@ -12,8 +12,9 @@ export const verifyToken = (req, res, next) => {
   // Remove Bearer prefix if present
   const tokenString = token.startsWith('Bearer ') ? token.slice(7) : token;
 
-  jwt.verify(tokenString, SECRET_KEY, (err, decoded) => {
+  jwt.verify(tokenString, process.env.JWT_SECRET || 'm_timepiece_dev_secret_2024', (err, decoded) => {
     if (err) {
+      console.error('JWT Verification Error:', err.message);
       return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
     req.userId = decoded.id;
