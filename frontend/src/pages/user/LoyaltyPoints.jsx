@@ -18,7 +18,6 @@ const LoyaltyPoints = () => {
 
   const fetchLoyaltyData = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       // Pass userId in query since we might not have global auth header set up in fetch wrapper yet
       // In a real app, useAuth should provide an authenticated fetch or token
       const response = await fetch(`${API_URL}/loyalty?userId=${user.id}`, {
@@ -49,9 +48,7 @@ const LoyaltyPoints = () => {
       return;
     }
 
-    setRedeeming(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const response = await fetch(`${API_URL}/loyalty/redeem`, {
         method: 'POST',
         headers: { 

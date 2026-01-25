@@ -4,6 +4,7 @@ import {
   PieChart, Pie, Cell, Legend 
 } from 'recharts';
 import { DollarSign, ShoppingBag, Users, Package, TrendingUp } from 'lucide-react';
+import usePrice from '../../hooks/usePrice';
 import { API_URL } from '../../services/api';
 
 const Analytics = () => {
