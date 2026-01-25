@@ -12,7 +12,18 @@ const handleResponse = async (response) => {
   if (contentType && contentType.includes("application/json")) {
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'API request failed');
-    return data;
+    
+    // Normalize IDs (_id -> id)
+    const normalize = (obj) => {
+      if (Array.isArray(obj)) return obj.map(normalize);
+      if (obj && typeof obj === 'object') {
+        if (obj._id && !obj.id) obj.id = obj._id;
+        Object.keys(obj).forEach(key => obj[key] = normalize(obj[key]));
+      }
+      return obj;
+    };
+
+    return normalize(data);
   }
   
   // Not JSON (likely HTML error page)
