@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Cell, Legend 
 } from 'recharts';
 import { DollarSign, ShoppingBag, Users, Package, TrendingUp } from 'lucide-react';
-import usePrice from '../../hooks/usePrice';
+import { API_URL } from '../../services/api';
 
 const Analytics = () => {
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, customers: 0 });
@@ -20,7 +20,6 @@ const Analytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };

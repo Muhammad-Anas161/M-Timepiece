@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getOrders } from '../../services/api';
+import { getOrders, API_URL } from '../../services/api';
 import usePrice from '../../hooks/usePrice';
 
 const OrderList = () => {
@@ -24,7 +24,7 @@ const OrderList = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/orders/${orderId}/status`, {
+      const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

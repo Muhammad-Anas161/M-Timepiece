@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Award, Gift, History, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+import { API_URL } from '../../services/api';
+
 const LoyaltyPoints = () => {
   const { user } = useAuth();
   const [points, setPoints] = useState(0);

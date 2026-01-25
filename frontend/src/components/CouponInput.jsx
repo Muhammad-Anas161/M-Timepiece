@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react';import { API_URL } from '../services/api';
 import { Tag, X, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -15,7 +15,6 @@ const CouponInput = ({ orderTotal, onCouponApplied }) => {
 
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const response = await fetch(`${API_URL}/coupons/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

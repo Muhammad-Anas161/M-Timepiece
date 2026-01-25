@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { API_URL } from '../../services/api';
 
 const CouponManagement = () => {
   const [coupons, setCoupons] = useState([]);

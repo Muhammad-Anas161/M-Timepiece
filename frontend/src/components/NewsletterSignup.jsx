@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_URL } from '../services/api';
 import { Mail, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -12,7 +13,6 @@ const NewsletterSignup = () => {
     setLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const response = await fetch(`${API_URL}/newsletter/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

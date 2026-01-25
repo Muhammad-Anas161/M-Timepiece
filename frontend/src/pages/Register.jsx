@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { User, Lock, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+import { API_URL } from '../services/api';
+
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -17,7 +19,6 @@ const Register = () => {
     setLoading(true);
     
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

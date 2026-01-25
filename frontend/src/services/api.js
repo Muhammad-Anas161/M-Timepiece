@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.MODE === 'production' 
+export const API_URL = import.meta.env.MODE === 'production' 
   ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' // Primary stable backend
   : 'http://localhost:3000/api';
 

@@ -3,6 +3,8 @@ import { Search, Package, Truck, CheckCircle, Clock, AlertCircle } from 'lucide-
 import usePrice from '../hooks/usePrice';
 import { Link } from 'react-router-dom';
 
+import { API_URL } from '../services/api';
+
 const OrderTracking = () => {
   const [trackingId, setTrackingId] = useState('');
   const [order, setOrder] = useState(null);
@@ -22,7 +24,7 @@ const OrderTracking = () => {
     setOrder(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/orders/track/${trackingId.trim()}`);
+      const response = await fetch(`${API_URL}/orders/track/${trackingId.trim()}`);
       
       if (!response.ok) {
         if (response.status === 404) {

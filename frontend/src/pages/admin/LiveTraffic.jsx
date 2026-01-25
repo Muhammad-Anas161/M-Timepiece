@@ -17,6 +17,8 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+import { API_URL } from '../../services/api';
+
 const LiveTraffic = () => {
   const [visits, setVisits] = useState([]);
   const [stats, setStats] = useState({ total_visits: 0, active_countries: 0, device_breakdown: {} });
@@ -24,7 +26,7 @@ const LiveTraffic = () => {
 
   const fetchTraffic = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/tracking/live`);
+      const res = await fetch(`${API_URL}/tracking/live`);
       const data = await res.json();
       setVisits(data.visits || []);
       setStats(data.stats || { total_visits: 0, active_countries: 0, device_breakdown: {} });
