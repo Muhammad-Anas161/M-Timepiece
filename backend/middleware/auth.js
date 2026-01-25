@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // Fallback for dev only
+const SECRET_KEY = process.env.JWT_SECRET || 'm_timepiece_dev_secret_2024';
 
 export const verifyToken = (req, res, next) => {
   const token = req.headers['authorization'];

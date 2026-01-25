@@ -1,5 +1,4 @@
-// Use strict production check to ignore potentially stale Vercel env vars
-const API_URL = import.meta.env.MODE === 'production' ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' : 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
@@ -149,6 +148,7 @@ export const sendChatMessage = async (message, history = []) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, history })
   });
-  if (!res.ok) throw new Error('AI Chat failed');
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'AI Chat failed');
+  return data;
 };

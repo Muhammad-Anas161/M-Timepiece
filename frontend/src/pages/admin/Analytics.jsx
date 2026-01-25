@@ -22,11 +22,14 @@ const Analytics = () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       
+      const token = localStorage.getItem('token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      
       const [statsRes, salesRes, productsRes, statusRes] = await Promise.all([
-        fetch(`${API_URL}/analytics/stats`),
-        fetch(`${API_URL}/analytics/sales`),
-        fetch(`${API_URL}/analytics/top-products`),
-        fetch(`${API_URL}/analytics/order-status`)
+        fetch(`${API_URL}/analytics/stats`, { headers }),
+        fetch(`${API_URL}/analytics/sales`, { headers }),
+        fetch(`${API_URL}/analytics/top-products`, { headers }),
+        fetch(`${API_URL}/analytics/order-status`, { headers })
       ]);
 
       const statsData = await statsRes.json();

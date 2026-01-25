@@ -37,7 +37,9 @@ const AIChatbot = () => {
       const data = await sendChatMessage(userMsg, history);
       setMessages(prev => [...prev, { role: 'model', text: data.response }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: "I apologize, but I am unable to connect to the server at this moment. Please check your connection or try again shortly." }]);
+      console.error(error);
+      const errorMsg = error.message || "I apologize, but I am unable to connect to the server at this moment.";
+      setMessages(prev => [...prev, { role: 'model', text: `${errorMsg} Please try again momentarily.` }]);
     } finally {
       setIsLoading(false);
     }

@@ -1,15 +1,15 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
-import dotenv from 'dotenv';
 import compression from 'compression';
 
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
-import orderRoutes from './routes/orders.js';
+import orderRoutes from './routes/orders.js'; 
 import newsletterRoutes from './routes/newsletter.js';
 import reviewsRoutes from './routes/reviews.js';
 import analyticsRoutes from './routes/analytics.js';
@@ -20,9 +20,6 @@ import locationRoutes from './routes/location.js';
 import chatRoutes from './routes/chat.js';
 
 import connectDB from './config/db.js';
-
-// Load environment variables
-dotenv.config();
 
 // Connect to Database
 connectDB();

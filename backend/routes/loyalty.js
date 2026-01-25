@@ -4,13 +4,19 @@ import LoyaltyHistory from '../models/LoyaltyHistory.js';
 import Coupon from '../models/Coupon.js';
 import mongoose from 'mongoose';
 
+import { verifyToken } from '../middleware/auth.js';
+
 const router = express.Router();
 
 // Get user points and history
-// Get user points and history
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   const userId = req.query.userId;
   if (!userId) return res.status(400).json({ message: 'User ID required' });
+
+  // Security check: Only allow users to access their own data unless they are admin
+  if (req.userId !== userId && req.userRole !== 'admin') {
+    return res.status(403).json({ message: 'Forbidden: You can only access your own data' });
+  }
 
   try {
     const user = await User.findById(userId).select('loyalty_points');
@@ -25,11 +31,16 @@ router.get('/', async (req, res) => {
 });
 
 // Redeem points for a coupon
-router.post('/redeem', async (req, res) => {
+router.post('/redeem', verifyToken, async (req, res) => {
   const { userId, pointsToRedeem } = req.body;
   
   if (!userId || !pointsToRedeem) {
     return res.status(400).json({ message: 'User ID and points required' });
+  }
+
+  // Security check: Only allow users to redeem their own points
+  if (req.userId !== userId) {
+    return res.status(403).json({ message: 'Forbidden: You can only redeem your own points' });
   }
 
   if (pointsToRedeem < 100) {

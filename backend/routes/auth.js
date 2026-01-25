@@ -5,7 +5,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 
 const router = express.Router();
-const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key'; // Fallback for dev only
+const SECRET_KEY = process.env.JWT_SECRET || 'm_timepiece_dev_secret_2024';
 
 router.post('/login', [
   body('username').isString().trim().notEmpty(),

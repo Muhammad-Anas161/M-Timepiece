@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-flash-latest",
+      model: "gemini-2.0-flash-lite",
       systemInstruction: systemInstruction
     });
 
@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
     res.json({ response: text });
   } catch (error) {
     console.error('Gemini AI Error:', error);
-    res.status(500).json({ error: 'Failed to generate response' });
+    res.status(500).json({ error: error.message || 'Failed to generate response' });
   }
 });
 

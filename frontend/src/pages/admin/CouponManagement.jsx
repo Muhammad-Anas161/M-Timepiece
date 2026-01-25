@@ -23,7 +23,10 @@ const CouponManagement = () => {
   const fetchCoupons = async () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-      const response = await fetch(`${API_URL}/coupons`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/coupons`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       if (Array.isArray(data)) {
         setCoupons(data);
@@ -43,9 +46,13 @@ const CouponManagement = () => {
     e.preventDefault();
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
 
@@ -76,8 +83,10 @@ const CouponManagement = () => {
 
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
@@ -92,8 +101,10 @@ const CouponManagement = () => {
   const handleToggle = async (id) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons/${id}/toggle`, {
-        method: 'PATCH'
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {

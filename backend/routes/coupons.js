@@ -1,6 +1,8 @@
 import express from 'express';
 import Coupon from '../models/Coupon.js';
 
+import { verifyToken, isAdmin } from '../middleware/auth.js';
+
 const router = express.Router();
 
 // Table creation handled in database.js
@@ -81,7 +83,7 @@ router.post('/use', async (req, res) => {
 });
 
 // Get all coupons (admin)
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, isAdmin, async (req, res) => {
   try {
     const coupons = await Coupon.find().sort({ created_at: -1 });
     res.json(coupons);
@@ -91,7 +93,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create coupon (admin)
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, isAdmin, async (req, res) => {
   const { 
     code, discount_type, discount_value, min_purchase, 
     max_discount, usage_limit, valid_until 
@@ -123,7 +125,7 @@ router.post('/', async (req, res) => {
 });
 
 // Delete coupon (admin)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndDelete(req.params.id);
     if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
@@ -134,7 +136,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Toggle coupon active status (admin)
-router.patch('/:id/toggle', async (req, res) => {
+router.patch('/:id/toggle', verifyToken, isAdmin, async (req, res) => {
   try {
     const coupon = await Coupon.findById(req.params.id);
     if (!coupon) return res.status(404).json({ message: 'Coupon not found' });

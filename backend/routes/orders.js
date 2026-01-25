@@ -6,19 +6,38 @@ import LoyaltyHistory from '../models/LoyaltyHistory.js';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-const router = express.Router();
-const SECRET_KEY = 'your-secret-key'; // Must match auth.js
+import { verifyToken, isAdmin } from '../middleware/auth.js';
 
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
-  jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
+const router = express.Router();
+
+// Get Orders (Protected)
+router.get('/', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ created_at: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update Order Status (Protected)
+router.patch('/:id/status', verifyToken, isAdmin, async (req, res) => {
+  const { status } = req.body;
+  const { id } = req.params;
+  
+  const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+  
+  try {
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order status updated', status: order.status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Create Order (Public)
 router.post('/', async (req, res) => {
@@ -103,35 +122,6 @@ router.post('/', async (req, res) => {
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get Orders (Protected)
-router.get('/', authenticate, async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ created_at: -1 });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Update Order Status (Protected)
-router.patch('/:id/status', authenticate, async (req, res) => {
-  const { status } = req.body;
-  const { id } = req.params;
-  
-  const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
-  }
-  
-  try {
-    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json({ message: 'Order status updated', status: order.status });
-  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

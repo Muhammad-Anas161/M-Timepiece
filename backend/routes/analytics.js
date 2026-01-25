@@ -3,10 +3,12 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 
+import { verifyToken, isAdmin } from '../middleware/auth.js';
+
 const router = express.Router();
 
 // Get dashboard stats
-router.get('/stats', async (req, res) => {
+router.get('/stats', verifyToken, isAdmin, async (req, res) => {
   try {
     const revenueStats = await Order.aggregate([
       { $group: { _id: null, total: { $sum: "$total" } } }
@@ -31,7 +33,7 @@ router.get('/stats', async (req, res) => {
 });
 
 // Get sales chart data (Last 7 days)
-router.get('/sales', async (req, res) => {
+router.get('/sales', verifyToken, isAdmin, async (req, res) => {
   try {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -61,7 +63,7 @@ router.get('/sales', async (req, res) => {
 });
 
 // Get top selling products
-router.get('/top-products', async (req, res) => {
+router.get('/top-products', verifyToken, isAdmin, async (req, res) => {
   try {
     // Since we now have order items correctly modeled in MongoDB, we can actually calculate this!
     const topProducts = await Order.aggregate([
@@ -97,7 +99,7 @@ router.get('/top-products', async (req, res) => {
 });
 
 // Get order status distribution
-router.get('/order-status', async (req, res) => {
+router.get('/order-status', verifyToken, isAdmin, async (req, res) => {
   try {
     const distribution = await Order.aggregate([
       { $group: { _id: "$status", count: { $sum: 1 } } },
