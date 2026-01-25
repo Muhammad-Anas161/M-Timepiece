@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { API_URL } from '../services/api';
 
 const useCurrencyStore = create(
   persist(
@@ -24,8 +25,6 @@ const useCurrencyStore = create(
           // But user might travel. Let's fetch every time for now or depend on session.
           // For now, let's fetch always on app start.
           
-          // Force Koyeb URL in production to avoid stale env vars
-          const API_URL = import.meta.env.MODE === 'production' ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' : 'http://localhost:3000/api';
           const res = await fetch(`${API_URL}/location`);
           
           if (!res.ok) {

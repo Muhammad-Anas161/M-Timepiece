@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { API_URL } from '../services/api';
 
 const useVisitorTracker = () => {
   const location = useLocation();
@@ -13,9 +14,7 @@ const useVisitorTracker = () => {
       try {
         const screenRes = `${window.screen.width}x${window.screen.height}`;
         
-        // Force Koyeb URL in production
-        const baseUrl = import.meta.env.MODE === 'production' ? 'https://additional-carolee-vertexadigital-6d8b2d03.koyeb.app/api' : 'http://localhost:3000/api';
-        await fetch(`${baseUrl}/tracking/log`, {
+        await fetch(`${API_URL}/tracking/log`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

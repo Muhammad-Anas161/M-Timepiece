@@ -23,7 +23,6 @@ const CouponManagement = () => {
 
   const fetchCoupons = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -46,7 +45,6 @@ const CouponManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons`, {
         method: 'POST',
@@ -83,7 +81,6 @@ const CouponManagement = () => {
     if (!confirm('Are you sure you want to delete this coupon?')) return;
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons/${id}`, {
         method: 'DELETE',
@@ -101,7 +98,6 @@ const CouponManagement = () => {
 
   const handleToggle = async (id) => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/coupons/${id}/toggle`, {
         method: 'PATCH',
